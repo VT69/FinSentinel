@@ -1,0 +1,3 @@
+column,dtype,non_null,null,null_pct,n_unique,cardinality_ratio,examples,meaning,confidence
+date,str,194,0,0.0,192,0.9897,2010-01 | 2010-02 | 2010-03,Trading/calendar day of the bar (yfinance index),high
+google_trend,int64,194,0,0.0,73,0.3763,22 | 25 | 21,"Google Trends interest, 0-100, relative to the peak month of the queried window",high

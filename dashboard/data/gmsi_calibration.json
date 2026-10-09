@@ -1,0 +1,53 @@
+{
+  "published_spearman": {
+    "BTC": -0.0837,
+    "NIFTY": -0.058
+  },
+  "assumed_gmsi_lag1_acf": 0.82,
+  "assets": {
+    "BTC": {
+      "n": 4009,
+      "statistic": -0.0837,
+      "phi": 0.82,
+      "n_sims": 2000,
+      "null_sd": 0.041356584957607,
+      "iid_null_sd": 0.015795600590164088,
+      "variance_inflation": 6.855151414377907,
+      "p_value": 0.046,
+      "p_value_if_iid": 1.1647446754438945e-07,
+      "fwd_vol_lag1_acf": 0.9280664037785994
+    },
+    "NIFTY": {
+      "n": 3920,
+      "statistic": -0.058,
+      "phi": 0.82,
+      "n_sims": 2000,
+      "null_sd": 0.04155299444642353,
+      "iid_null_sd": 0.015973951748802794,
+      "variance_inflation": 6.766746630713396,
+      "p_value": 0.163,
+      "p_value_if_iid": 0.0002824223730048351,
+      "fwd_vol_lag1_acf": 0.940093998802739
+    }
+  },
+  "false_positive_rate": [
+    {
+      "phi": 0.0,
+      "n_sims": 200,
+      "iid_shuffle": 0.06,
+      "circular_shift": 0.065
+    },
+    {
+      "phi": 0.5,
+      "n_sims": 200,
+      "iid_shuffle": 0.24,
+      "circular_shift": 0.05
+    },
+    {
+      "phi": 0.9,
+      "n_sims": 200,
+      "iid_shuffle": 0.55,
+      "circular_shift": 0.085
+    }
+  ]
+}

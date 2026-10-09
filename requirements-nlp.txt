@@ -1,0 +1,6 @@
+# Optional: re-scoring headlines with FinBERT (pipeline/sentiment.py, notebooks/03).
+# NOT installed or tested in the audit environment (huggingface.co was unreachable there),
+# so these are lower bounds, not tested pins. Pin them once you have run the scoring locally.
+-r requirements-research.txt
+torch>=2.2
+transformers>=4.40

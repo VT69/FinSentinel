@@ -1,56 +1,18 @@
-# FinSentinel — Market Intelligence Dashboard
-
-Financial Sentiment & Market Dynamics Research Platform
-DSN-278 · VIT Bhopal University · 2026
-
----
-
-## Quick Start
+# FinSentinel dashboard
 
 ```bash
-# 1. Install dependencies
-pip install streamlit plotly scipy pandas numpy
-
-# 2. Run the dashboard
-streamlit run app.py
+pip install -r dashboard/requirements.txt
+streamlit run dashboard/app.py          # run from the repo root
 ```
 
-Opens at: http://localhost:8501
+| Page | Shows | Source |
+|---|---|---|
+| Overview | headline results, BTC & NIFTY price history | `dashboard/data/*`, `data/raw/*_prices.csv` |
+| Volatility forecast | **live model inference**: 5-day volatility forecast for any date in the data or pasted prices; walk-forward model comparison | `models/har_*.json`, `pipeline/volatility.py` |
+| GMSI & volatility | conditional-expectation charts, corrected significance | `reports/figures/`, `dashboard/data/gmsi_calibration.json` |
+| Market fragility (MFI) | MFI and its components on real prices | `dashboard/data/mfi_*.csv` |
+| Shock propagation | volatility after top-5% moves vs normal | `dashboard/data/shocks_*.csv` |
+| Methodology & limitations | definitions, validation, caveats, corrections log | — |
 
----
-
-## Pages
-
-| Page | What it shows |
-|------|--------------|
-| 🏠 Overview | Live metrics, asset prices, key findings summary |
-| 📊 Sentiment & Correlation | FinBERT+VADER scores vs price, lag correlation, scatter |
-| 🌡️ Market Fragility (MFI) | MFI components, VIX validation, fragility timeline |
-| ⚡ Shock Propagation | Decay curves, half-life, regime-conditioned shock response |
-| 🔬 Regime Analysis | GMSI regimes, Wasserstein distance, vol distributions |
-| 📖 Methodology | Full pipeline diagram, NLP formulas, statistical methods |
-
----
-
-## Data Note
-
-Currently uses realistic synthetic data (GARCH-simulated returns, AR(1) GMSI).
-To connect real data: replace the `generate_data()` function in `app.py`
-with reads from your `data/processed/master_daily.csv`.
-
----
-
-## Deploy to Streamlit Cloud
-
-1. Push to GitHub
-2. Go to share.streamlit.io
-3. Select repo → `dashboard/app.py`
-4. Deploy (free, public URL)
-
----
-
-## Stack
-- Streamlit — UI framework
-- Plotly — interactive charts
-- SciPy — correlation statistics
-- Pandas / NumPy — data processing
+All files under `dashboard/data/` and `models/` are produced by `python run_pipeline.py` (repo root) and committed,
+so the app needs no network access and no heavy ML libraries. Deployment: `docs/DEPLOY.md`.

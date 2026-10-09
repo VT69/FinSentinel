@@ -1,0 +1,12 @@
+<class 'pandas.DataFrame'>
+RangeIndex: 1500 entries, 0 to 1499
+Data columns (total 5 columns):
+ #   Column     Non-Null Count  Dtype  
+---  ------     --------------  -----  
+ 0   timestamp  1500 non-null   str    
+ 1   text       1499 non-null   str    
+ 2   source     0 non-null      float64
+ 3   asset      1500 non-null   str    
+ 4   channel    1500 non-null   str    
+dtypes: float64(1), str(4)
+memory usage: 58.7 KB

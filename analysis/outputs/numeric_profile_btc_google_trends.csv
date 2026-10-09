@@ -1,0 +1,2 @@
+column,count,mean,median,mode,mode_count,std,var,min,max,range,q1,q2,q3,iqr,p01,p05,p95,p99,skew,kurtosis_excess,cv,zeros,negatives,outliers_iqr_1.5,outliers_abs_z_gt_3
+google_trend,132,22.71212121212121,21.0,2.0,13,16.91448193953647,286.0996992829054,2.0,100.0,98.0,11.75,21.0,33.0,21.25,2.0,2.0,52.0,67.44999999999999,1.141254046552913,2.4638534568998454,0.7447336944692509,0,0,2,1

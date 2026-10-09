@@ -1,0 +1,8 @@
+column,dtype,non_null,null,null_pct,n_unique,cardinality_ratio,examples,meaning,confidence
+date,datetime64[us],3927,0,0.0,3927,1.0,2010-01-05 | 2010-01-06 | 2010-01-07,Trading/calendar day of the bar (yfinance index),high
+open,float64,3927,0,0.0,3897,0.9924,5277.14990234375 | 5278.14990234375 | 5281.7998046875,"Opening price of the day, quote currency (USD for BTC, INR index points for NIFTY)",high
+high,float64,3927,0,0.0,3896,0.9921,5288.35009765625 | 5310.85009765625 | 5302.5498046875,Intraday high,high
+low,float64,3927,0,0.0,3894,0.9916,5242.39990234375 | 5260.0498046875 | 5244.75,Intraday low,high
+close,float64,3927,0,0.0,3887,0.9898,5277.89990234375 | 5281.7998046875 | 5263.10009765625,Close price (yfinance default auto_adjust; index has no dividends),high
+volume,int64,3927,0,0.0,2206,0.5618,0 | 130900 | 129000,Traded volume (USD notional for BTC-USD; NIFTY index volume as reported by Yahoo),medium
+return,float64,3927,0,0.0,3924,0.9992,0.0087343192778044 | 0.000738911767163 | -0.0035404043550939,Simple return close.pct_change() — NOT log; notebooks later overwrite it with log return,high

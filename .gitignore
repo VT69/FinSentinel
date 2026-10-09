@@ -33,3 +33,6 @@ notebooks/data/raw/
 
 # Parquet cache files
 *.parquet
+
+# Streamlit secrets (use st.secrets; never commit)
+.streamlit/secrets.toml
