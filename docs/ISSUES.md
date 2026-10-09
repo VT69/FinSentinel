@@ -19,39 +19,39 @@ The audit below describes the code at commit `e1eb270`; file:line references poi
 
 | ID | Status | Fixed in | How |
 |---|---|---|---|
-| SEC-1 | ⚠ **partly: action needed from you** | `4d9deb7` | Placeholder in `.env.example`. **The key is still in git history: revoke it at FRED.** History was not rewritten (destructive; not approved). |
-| P0-1 | ✅ | `797f039`, `e8e97df` | MFI and shock results regenerated from real prices; GMSI-regime/AC₁ results removed; dashboard reads only pipeline outputs |
-| P0-2 | ✅ | `797f039` | script 08 reads real prices, fails loudly; synthetic only via `--demo` into `reports/figures/demo/` with a watermark |
-| P0-3 | ✅ code / ⏳ re-run | `703167a`, `0c12070` | `pipeline/sentiment.finbert_polarity` resolves labels by name; notebook 03 uses it. Re-scoring needs FinBERT locally (`requirements-nlp.txt`) |
-| P0-4 | ✅ | `807d47d` | constant pickle deleted; HAR served from JSON; legacy RF refuses to train when n < 2·min_samples_leaf |
-| P0-5 | ✅ | `e8e97df` | fake null histogram removed |
-| P0-6 | ✅ | `e8e97df`, `807d47d` | p-values computed by `run_pipeline.py` (calibrated null); README/dashboard text rewritten |
-| P0-7 | ✅ (archived) | `0c12070` | every notebook has a known-issues header; logic lives in `pipeline/`/`scripts/` |
-| P0-8 | ⚠ partial | `807d47d` | all *served* results rebuild from committed `data/raw`; GMSI inputs still need the GDELT pipeline (too large to commit) |
-| P1-1 | ✅ | `703167a`, `032fb5a` | `pipeline.stats.permutation_test(method="circular")`; tested false-positive rate |
-| P1-2 | ✅ | `e8e97df` | text now says "Q1 highest, Q2–Q5 roughly flat" |
-| P1-3 | ✅ | `032fb5a`, `703167a` | expanding past-only regime and shock thresholds |
-| P1-4 | ✅ | `0c12070` | notebook 06 target = std r[t+1..t+5] |
-| P1-5 | ✅ | `807d47d` | `dropna(subset=used columns)`; comment fixed |
-| P1-6 | ✅ code / ⏳ re-run | `0c12070` | `EventRootCode` read as zero-padded strings (needs GDELT files to re-aggregate) |
-| P1-7 | ✅ | `713159d`, `e8e97df` | docs and dashboard describe the real method (equal-weight expanding z-scores, no PCA); coverage printed |
-| P1-8, P1-9 | ✅ | `e8e97df` | unsupported 82.7%-accuracy and "validated vs VIX" claims removed |
-| P1-10 | ✅ | `703167a`, `032fb5a` | `within_spell_ac1` uses consecutive same-regime days only |
-| P1-11 | ✅ | `703167a`, `0c12070` | cleaner keeps numbers/symbols; non-English headlines dropped |
-| P1-12 | ✅ | `b2de5f8`, `703167a` | √365 for BTC, √252 for NIFTY (`pipeline.volatility.annualise`) |
-| P1-13 | ✅ | `807d47d` | `TimeSeriesSplit(gap=5)`; legacy RF split purged |
-| P1-14, P1-15 | ✅ | `0c12070`, `713159d` | notebook bootstrap flagged; full rolling windows |
-| P1-16 | ✅ | `703167a` | half-life fit dropped; shock curves vs baseline with 95% CIs |
-| P2-1 | ✅ | `e8e97df` | landing page 185 s → 2.5–3.8 s (browser-measured) |
-| P2-2 | ✅ | `e8e97df` | `runtime.txt` removed; Python version set in Streamlit Cloud (DEPLOY.md) |
-| P2-3, P2-4 | ✅ | `e8e97df`, `807d47d` | exact pins; dashboard tested on 3.11/3.12/3.13/3.14; research on 3.12 |
-| P2-5, P2-6, P2-7 | ✅ | `e8e97df` | no global seeding, no warning suppression, theme in `.streamlit/config.toml` |
-| P3-1 | ✅ | `703167a`, `e8e97df`, `8f6f401` | pytest (unit + AppTest), Playwright smoke test, GitHub Actions incl. model drift check |
-| P3-2 | ✅ | `713159d`, `797f039` | `Path(__file__)`-relative paths everywhere |
-| P3-3 … P3-9 | ✅ | `807d47d`, `55b2328`, `0c12070` | dead code, placeholders, duplicate notebook/assets/reports removed; trends deduplicated; README rewritten |
-| P3-10, P3-11 | ✅ | `b2de5f8` | current GDELT month never cached; `nasdaq-data-link` client |
-| P3-12, P3-13 | ✅ | `807d47d`, `0c12070` | pipeline errors explicit; plots saved, not shown |
-| P3-14, P3-16 | ✅ | `e8e97df` | dashboard split into `data.py` + `views/` |
+| SEC-1 | ⚠ **partly: action needed from you** | `79cabea` | Placeholder in `.env.example`. **The key is still in git history: revoke it at FRED.** History was not rewritten (destructive; not approved). |
+| P0-1 | ✅ | `6740d67`, `dfb2941` | MFI and shock results regenerated from real prices; GMSI-regime/AC₁ results removed; dashboard reads only pipeline outputs |
+| P0-2 | ✅ | `6740d67` | script 08 reads real prices, fails loudly; synthetic only via `--demo` into `reports/figures/demo/` with a watermark |
+| P0-3 | ✅ code / ⏳ re-run | `f901cd9`, `afef9d0` | `pipeline/sentiment.finbert_polarity` resolves labels by name; notebook 03 uses it. Re-scoring needs FinBERT locally (`requirements-nlp.txt`) |
+| P0-4 | ✅ | `3848f16` | constant pickle deleted; HAR served from JSON; legacy RF refuses to train when n < 2·min_samples_leaf |
+| P0-5 | ✅ | `dfb2941` | fake null histogram removed |
+| P0-6 | ✅ | `dfb2941`, `3848f16` | p-values computed by `run_pipeline.py` (calibrated null); README/dashboard text rewritten |
+| P0-7 | ✅ (archived) | `afef9d0` | every notebook has a known-issues header; logic lives in `pipeline/`/`scripts/` |
+| P0-8 | ⚠ partial | `3848f16` | all *served* results rebuild from committed `data/raw`; GMSI inputs still need the GDELT pipeline (too large to commit) |
+| P1-1 | ✅ | `f901cd9`, `7ce5032` | `pipeline.stats.permutation_test(method="circular")`; tested false-positive rate |
+| P1-2 | ✅ | `dfb2941` | text now says "Q1 highest, Q2–Q5 roughly flat" |
+| P1-3 | ✅ | `7ce5032`, `f901cd9` | expanding past-only regime and shock thresholds |
+| P1-4 | ✅ | `afef9d0` | notebook 06 target = std r[t+1..t+5] |
+| P1-5 | ✅ | `3848f16` | `dropna(subset=used columns)`; comment fixed |
+| P1-6 | ✅ code / ⏳ re-run | `afef9d0` | `EventRootCode` read as zero-padded strings (needs GDELT files to re-aggregate) |
+| P1-7 | ✅ | `621a043`, `dfb2941` | docs and dashboard describe the real method (equal-weight expanding z-scores, no PCA); coverage printed |
+| P1-8, P1-9 | ✅ | `dfb2941` | unsupported 82.7%-accuracy and "validated vs VIX" claims removed |
+| P1-10 | ✅ | `f901cd9`, `7ce5032` | `within_spell_ac1` uses consecutive same-regime days only |
+| P1-11 | ✅ | `f901cd9`, `afef9d0` | cleaner keeps numbers/symbols; non-English headlines dropped |
+| P1-12 | ✅ | `c20e352`, `f901cd9` | √365 for BTC, √252 for NIFTY (`pipeline.volatility.annualise`) |
+| P1-13 | ✅ | `3848f16` | `TimeSeriesSplit(gap=5)`; legacy RF split purged |
+| P1-14, P1-15 | ✅ | `afef9d0`, `621a043` | notebook bootstrap flagged; full rolling windows |
+| P1-16 | ✅ | `f901cd9` | half-life fit dropped; shock curves vs baseline with 95% CIs |
+| P2-1 | ✅ | `dfb2941` | landing page 185 s → 2.5–3.8 s (browser-measured) |
+| P2-2 | ✅ | `dfb2941` | `runtime.txt` removed; Python version set in Streamlit Cloud (DEPLOY.md) |
+| P2-3, P2-4 | ✅ | `dfb2941`, `3848f16` | exact pins; dashboard tested on 3.11/3.12/3.13/3.14; research on 3.12 |
+| P2-5, P2-6, P2-7 | ✅ | `dfb2941` | no global seeding, no warning suppression, theme in `.streamlit/config.toml` |
+| P3-1 | ✅ | `f901cd9`, `dfb2941`, `cafb448` | pytest (unit + AppTest), Playwright smoke test, GitHub Actions incl. model drift check |
+| P3-2 | ✅ | `621a043`, `6740d67` | `Path(__file__)`-relative paths everywhere |
+| P3-3 … P3-9 | ✅ | `3848f16`, `86a39c3`, `afef9d0` | dead code, placeholders, duplicate notebook/assets/reports removed; trends deduplicated; README rewritten |
+| P3-10, P3-11 | ✅ | `c20e352` | current GDELT month never cached; `nasdaq-data-link` client |
+| P3-12, P3-13 | ✅ | `3848f16`, `afef9d0` | pipeline errors explicit; plots saved, not shown |
+| P3-14, P3-16 | ✅ | `dfb2941` | dashboard split into `data.py` + `views/` |
 | P3-15 | ✅ from here on | — | atomic, descriptive commits |
 
 ---
