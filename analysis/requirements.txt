@@ -1,0 +1,11 @@
+# Exact versions the analysis/ scripts were run with (Python 3.12.3).
+# scikit-learn is pinned to 1.8.0 because models/rf_btc.pkl was pickled with 1.8.0.
+numpy==2.5.3
+pandas==3.0.6
+scipy==1.18.1
+scikit-learn==1.8.0
+joblib==1.6.0
+matplotlib==3.11.2
+seaborn==0.13.2
+statsmodels==0.15.0
+vaderSentiment==3.3.2

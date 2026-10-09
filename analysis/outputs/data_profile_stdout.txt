@@ -1,0 +1,501 @@
+
+====================================================================================================
+1. FILE METADATA (data/raw)
+====================================================================================================
+                   file  bytes  lines                  encoding delimiter                                 header
+  btc_google_trends.csv   1439    133   ascii (subset of utf-8)       ','                      date,google_trend
+         btc_prices.csv 423823   4017   ascii (subset of utf-8)       ',' date,open,high,low,close,volume,return
+          manifest.json  13789    618   ascii (subset of utf-8)       NaN                                    NaN
+nifty_google_trends.csv   2146    195   ascii (subset of utf-8)       ','                      date,google_trend
+       nifty_prices.csv 379817   3928   ascii (subset of utf-8)       ',' date,open,high,low,close,volume,return
+           pipeline.log   7828     80 utf-8 (non-ASCII present)       NaN                                    NaN
+          text_data.csv 241848   1501 utf-8 (non-ASCII present)       ','    timestamp,text,source,asset,channel
+
+====================================================================================================
+2. STRUCTURE — btc_prices
+====================================================================================================
+shape: 4016 rows x 7 cols | memory (deep): 219.8 KiB
+<class 'pandas.DataFrame'>
+RangeIndex: 4016 entries, 0 to 4015
+Data columns (total 7 columns):
+ #   Column  Non-Null Count  Dtype         
+---  ------  --------------  -----         
+ 0   date    4016 non-null   datetime64[us]
+ 1   open    4016 non-null   float64       
+ 2   high    4016 non-null   float64       
+ 3   low     4016 non-null   float64       
+ 4   close   4016 non-null   float64       
+ 5   volume  4016 non-null   int64         
+ 6   return  4016 non-null   float64       
+dtypes: datetime64[us](1), float64(5), int64(1)
+memory usage: 219.8 KB
+
+column          dtype  non_null  null  null_pct  n_unique  cardinality_ratio                                                                                  meaning confidence
+  date datetime64[us]      4016     0       0.0      4016             1.0000                                         Trading/calendar day of the bar (yfinance index)       high
+  open        float64      4016     0       0.0      4013             0.9993       Opening price of the day, quote currency (USD for BTC, INR index points for NIFTY)       high
+  high        float64      4016     0       0.0      4013             0.9993                                                                            Intraday high       high
+   low        float64      4016     0       0.0      4014             0.9995                                                                             Intraday low       high
+ close        float64      4016     0       0.0      4013             0.9993                       Close price (yfinance default auto_adjust; index has no dividends)       high
+volume          int64      4016     0       0.0      4016             1.0000        Traded volume (USD notional for BTC-USD; NIFTY index volume as reported by Yahoo)     medium
+return        float64      4016     0       0.0      4016             1.0000 Simple return close.pct_change() — NOT log; notebooks later overwrite it with log return       high
+
+====================================================================================================
+2. STRUCTURE — nifty_prices
+====================================================================================================
+shape: 3927 rows x 7 cols | memory (deep): 214.9 KiB
+<class 'pandas.DataFrame'>
+RangeIndex: 3927 entries, 0 to 3926
+Data columns (total 7 columns):
+ #   Column  Non-Null Count  Dtype         
+---  ------  --------------  -----         
+ 0   date    3927 non-null   datetime64[us]
+ 1   open    3927 non-null   float64       
+ 2   high    3927 non-null   float64       
+ 3   low     3927 non-null   float64       
+ 4   close   3927 non-null   float64       
+ 5   volume  3927 non-null   int64         
+ 6   return  3927 non-null   float64       
+dtypes: datetime64[us](1), float64(5), int64(1)
+memory usage: 214.9 KB
+
+column          dtype  non_null  null  null_pct  n_unique  cardinality_ratio                                                                                  meaning confidence
+  date datetime64[us]      3927     0       0.0      3927             1.0000                                         Trading/calendar day of the bar (yfinance index)       high
+  open        float64      3927     0       0.0      3897             0.9924       Opening price of the day, quote currency (USD for BTC, INR index points for NIFTY)       high
+  high        float64      3927     0       0.0      3896             0.9921                                                                            Intraday high       high
+   low        float64      3927     0       0.0      3894             0.9916                                                                             Intraday low       high
+ close        float64      3927     0       0.0      3887             0.9898                       Close price (yfinance default auto_adjust; index has no dividends)       high
+volume          int64      3927     0       0.0      2206             0.5618        Traded volume (USD notional for BTC-USD; NIFTY index volume as reported by Yahoo)     medium
+return        float64      3927     0       0.0      3924             0.9992 Simple return close.pct_change() — NOT log; notebooks later overwrite it with log return       high
+
+====================================================================================================
+2. STRUCTURE — text_data
+====================================================================================================
+shape: 1500 rows x 5 cols | memory (deep): 550.8 KiB
+<class 'pandas.DataFrame'>
+RangeIndex: 1500 entries, 0 to 1499
+Data columns (total 5 columns):
+ #   Column     Non-Null Count  Dtype  
+---  ------     --------------  -----  
+ 0   timestamp  1500 non-null   str    
+ 1   text       1499 non-null   str    
+ 2   source     0 non-null      float64
+ 3   asset      1500 non-null   str    
+ 4   channel    1500 non-null   str    
+dtypes: float64(1), str(4)
+memory usage: 58.7 KB
+
+   column   dtype  non_null  null  null_pct  n_unique  cardinality_ratio                                               meaning confidence
+timestamp     str      1500     0      0.00      1133             0.7553                 GDELT 'seendate' of the headline, UTC       high
+     text     str      1499     1      0.07      1390             0.9267                         Headline title only (no body)       high
+   source float64         0  1500    100.00         0             0.0000 Intended: publisher name. Empty in the committed file       high
+    asset     str      1500     0      0.00         2             0.0013       Which query produced the headline: BTC or NIFTY       high
+  channel     str      1500     0      0.00         1             0.0007                              Collection channel label       high
+
+====================================================================================================
+2. STRUCTURE — btc_google_trends
+====================================================================================================
+shape: 132 rows x 2 cols | memory (deep): 8.4 KiB
+<class 'pandas.DataFrame'>
+RangeIndex: 132 entries, 0 to 131
+Data columns (total 2 columns):
+ #   Column        Non-Null Count  Dtype
+---  ------        --------------  -----
+ 0   date          132 non-null    str  
+ 1   google_trend  132 non-null    int64
+dtypes: int64(1), str(1)
+memory usage: 2.2 KB
+
+      column dtype  non_null  null  null_pct  n_unique  cardinality_ratio                                                                         meaning confidence
+        date   str       132     0       0.0       132             1.0000                                Trading/calendar day of the bar (yfinance index)       high
+google_trend int64       132     0       0.0        46             0.3485 Google Trends interest, 0-100, relative to the peak month of the queried window       high
+
+====================================================================================================
+2. STRUCTURE — nifty_google_trends
+====================================================================================================
+shape: 194 rows x 2 cols | memory (deep): 12.3 KiB
+<class 'pandas.DataFrame'>
+RangeIndex: 194 entries, 0 to 193
+Data columns (total 2 columns):
+ #   Column        Non-Null Count  Dtype
+---  ------        --------------  -----
+ 0   date          194 non-null    str  
+ 1   google_trend  194 non-null    int64
+dtypes: int64(1), str(1)
+memory usage: 3.2 KB
+
+      column dtype  non_null  null  null_pct  n_unique  cardinality_ratio                                                                         meaning confidence
+        date   str       194     0       0.0       192             0.9897                                Trading/calendar day of the bar (yfinance index)       high
+google_trend int64       194     0       0.0        73             0.3763 Google Trends interest, 0-100, relative to the peak month of the queried window       high
+
+====================================================================================================
+3. NUMERIC PROFILE — btc_prices
+====================================================================================================
+column                     open        high        low       close      volume     return
+count                      4016        4016       4016        4016        4016       4016
+mean                      27518     28072.6    26932.6     27538.9 2.22034e+10 0.00203044
+median                    11352     11570.4    11015.3     11358.4 1.77768e+10 0.00124827
+mode                    233.422     244.251    429.077     236.153 7.86065e+06  -0.371695
+mode_count                    2           2          2           2           1          1
+std                     31747.8     32290.5      31170     31758.7 2.29131e+10  0.0352221
+var                 1.00792e+09 1.04267e+09 9.7157e+08 1.00862e+09 5.25008e+20 0.00124059
+min                     176.897     211.731     171.51     178.103 7.86065e+06  -0.371695
+max                      124752      126198     123196      124753 3.50968e+11   0.252472
+range                    124575      125986     123025      124574  3.5096e+11   0.624167
+q1                      3671.53     3754.55    3619.76     3673.18 2.21954e+09 -0.0121418
+q2                        11352     11570.4    11015.3     11358.4 1.77768e+10 0.00124827
+q3                      42807.8     43575.5    41906.5     42840.4 3.37298e+10  0.0160721
+iqr                     39136.3     39820.9    38286.8     39167.2 3.15102e+10  0.0282139
+p01                     226.552     230.625    222.713     226.709 1.51479e+07  -0.100603
+p05                     256.338     261.653    251.684     256.327 2.66025e+07 -0.0528328
+p95                      101769      104025    99766.5      101752 6.59738e+10  0.0555936
+p99                      116816      117874     115248      116820 9.44825e+10   0.104195
+skew                    1.30637      1.2927    1.32118     1.30491     2.01318  -0.120367
+kurtosis_excess        0.725912    0.676827   0.779216    0.720562     12.7903    7.97923
+cv                      1.15371     1.15025    1.15733     1.15323     1.03196     17.347
+zeros                         0           0          0           0           0          1
+negatives                     0           0          0           0           0       1896
+outliers_iqr_1.5            204         209        205         202          80        379
+outliers_abs_z_gt_3           4           3          5           4          53         70
+
+====================================================================================================
+3. NUMERIC PROFILE — nifty_prices
+====================================================================================================
+column                     open        high        low       close      volume      return
+count                      3927        3927       3927        3927        3927        3927
+mean                    11843.6     11900.2    11770.4     11836.6      240987 0.000462066
+median                    10101     10155.7    10049.1     10113.7      213500 0.000587859
+mode                     4878.6     5016.25     4924.3     5274.85           0           0
+mode_count                    2           2          2           3         774           4
+std                     6228.66     6250.88    6201.78     6227.35      202284   0.0103975
+var                 3.87962e+07 3.90734e+07 3.8462e+07 3.87799e+07 4.09189e+10 0.000108107
+min                     4623.15     4623.15    4531.15      4544.2           0   -0.129805
+max                     26325.8     26325.8    26172.4     26216.1   1.811e+06   0.0876321
+range                   21702.7     21702.7    21641.3     21671.9   1.811e+06    0.217437
+q1                      6207.62      6258.1    6179.85     6216.15      131700 -0.00474398
+q2                        10101     10155.7    10049.1     10113.7      213500 0.000587859
+q3                      17005.3     17112.2      16847     16983.4      312150  0.00610318
+iqr                     10797.7     10854.1    10667.1     10767.2      180450   0.0108472
+p01                     4841.48     4879.32    4787.58     4840.12           0  -0.0263197
+p05                     5148.53     5179.53    5101.47     5139.46           0   -0.015553
+p95                       24642     24764.1    24535.5     24653.2      642600   0.0162392
+p99                     25866.3     25946.7    25786.6     25866.4      873090   0.0261422
+skew                   0.823708    0.824033   0.826457    0.824812     1.47719   -0.687598
+kurtosis_excess       -0.532591   -0.533351  -0.525815   -0.531072     4.28317     11.8025
+cv                     0.525909    0.525273   0.526894    0.526111    0.839399     22.5021
+zeros                         0           0          0           0         774           4
+negatives                     0           0          0           0           0        1834
+outliers_iqr_1.5              0           0          0           0         285         156
+outliers_abs_z_gt_3           0           0          0           0          49          47
+
+====================================================================================================
+3. NUMERIC PROFILE — btc_google_trends
+====================================================================================================
+column               google_trend
+count                         132
+mean                      22.7121
+median                         21
+mode                            2
+mode_count                     13
+std                       16.9145
+var                         286.1
+min                             2
+max                           100
+range                          98
+q1                          11.75
+q2                             21
+q3                             33
+iqr                         21.25
+p01                             2
+p05                             2
+p95                            52
+p99                         67.45
+skew                      1.14125
+kurtosis_excess           2.46385
+cv                       0.744734
+zeros                           0
+negatives                       0
+outliers_iqr_1.5                2
+outliers_abs_z_gt_3             1
+
+====================================================================================================
+3. NUMERIC PROFILE — nifty_google_trends
+====================================================================================================
+column               google_trend
+count                         194
+mean                      36.6546
+median                         26
+mode                           13
+mode_count                     15
+std                       25.7758
+var                       664.393
+min                             8
+max                           100
+range                          92
+q1                          13.25
+q2                             26
+q3                             59
+iqr                         45.75
+p01                          8.93
+p05                            10
+p95                            82
+p99                            98
+skew                     0.698444
+kurtosis_excess          -0.79657
+cv                       0.703208
+zeros                           0
+negatives                       0
+outliers_iqr_1.5                0
+outliers_abs_z_gt_3             0
+
+====================================================================================================
+3b. PLAUSIBILITY CHECKS — BTC prices
+====================================================================================================
+  date_min: 2015-01-02
+  date_max: 2025-12-30
+  future_dates_vs_2026-10-09: 0
+  duplicate_dates: 0
+  nonpositive_prices: 0
+  high_lt_low: 0
+  close_outside_low_high: 0
+  open_outside_low_high: 0
+  volume_zero_rows: 0
+  stored_return_vs_pct_change_maxabsdiff_excl_first: 3.0964814046186007e-16
+  stored_return_first_row: 0.0024917184690256
+  day_gap_histogram: {1: 4015}
+  calendar_days_missing: 0
+  btc_missing_dates_sample: []
+  largest_abs_log_returns: [{'date': '2020-03-12', 'close': 4970.79, 'abs_log_ret': 0.4647}, {'date': '2015-01-14', 'close': 178.1, 'abs_log_ret': 0.2376}, {'date': '2017-12-07', 'close': 17899.7, 'abs_log_ret': 0.2251}, {'date': '2017-07-20', 'close': 2817.6, 'abs_log_ret': 0.2146}, {'date': '2017-09-14', 'close': 3154.95, 'abs_log_ret': 0.2075}]
+  rows_per_year: {2015: 364, 2016: 366, 2017: 365, 2018: 365, 2019: 365, 2020: 366, 2021: 365, 2022: 365, 2023: 365, 2024: 366, 2025: 364}
+
+====================================================================================================
+3b. PLAUSIBILITY CHECKS — NIFTY prices
+====================================================================================================
+  date_min: 2010-01-05
+  date_max: 2025-12-30
+  future_dates_vs_2026-10-09: 0
+  duplicate_dates: 0
+  nonpositive_prices: 0
+  high_lt_low: 0
+  close_outside_low_high: 0
+  open_outside_low_high: 0
+  volume_zero_rows: 774
+  volume_zero_first_last: ['2010-01-05', '2024-07-03']
+  volume_zero_by_year: {2010: 249, 2011: 242, 2012: 242, 2013: 13, 2017: 1, 2018: 13, 2020: 2, 2021: 4, 2022: 1, 2023: 2, 2024: 5}
+  stored_return_vs_pct_change_maxabsdiff_excl_first: 9.996344030316351e-17
+  stored_return_first_row: 0.0087343192778044
+  day_gap_histogram: {1: 2967, 2: 120, 3: 735, 4: 95, 5: 8, 6: 1}
+  calendar_days_missing: 1912
+  largest_abs_log_returns: [{'date': '2020-03-23', 'close': 7610.25, 'abs_log_ret': 0.139}, {'date': '2020-03-12', 'close': 9590.15, 'abs_log_ret': 0.0867}, {'date': '2020-04-07', 'close': 8792.2, 'abs_log_ret': 0.084}, {'date': '2020-03-16', 'close': 9197.4, 'abs_log_ret': 0.0792}, {'date': '2020-03-25', 'close': 8317.85, 'abs_log_ret': 0.0641}]
+  rows_per_year: {2010: 249, 2011: 242, 2012: 242, 2013: 247, 2014: 240, 2015: 244, 2016: 244, 2017: 248, 2018: 245, 2019: 241, 2020: 250, 2021: 248, 2022: 248, 2023: 245, 2024: 246, 2025: 248}
+
+====================================================================================================
+4. CATEGORICAL PROFILE — text_data
+====================================================================================================
+
+[source]
+  value_counts: {'nan': 1500}
+  relative_freq: {'nan': 1.0}
+  mode: None
+  entropy_bits: None
+  n_categories: 0
+  rare_lt_1pct: 0
+  case_or_whitespace_variants: {}
+  na_like_strings: 0
+  true_NaN: 1500
+
+[asset]
+  value_counts: {'NIFTY': 750, 'BTC': 750}
+  relative_freq: {'NIFTY': 0.5, 'BTC': 0.5}
+  mode: BTC
+  entropy_bits: 1.0
+  n_categories: 2
+  rare_lt_1pct: 0
+  case_or_whitespace_variants: {}
+  na_like_strings: 0
+  true_NaN: 0
+
+[channel]
+  value_counts: {'news_gdelt': 1500}
+  relative_freq: {'news_gdelt': 1.0}
+  mode: news_gdelt
+  entropy_bits: -0.0
+  n_categories: 1
+  rare_lt_1pct: 0
+  case_or_whitespace_variants: {}
+  na_like_strings: 0
+  true_NaN: 0
+
+====================================================================================================
+4b. TEXT PROFILE — data/raw/text_data.csv
+====================================================================================================
+  rows: 1500
+  ts_min: 2024-10-03 01:15:00+00:00
+  ts_max: 2025-01-01 16:30:00+00:00
+  distinct_utc_days: 91
+  dominant_script_counts: {'LATIN': 1261, 'DEVANAGARI': 150, 'HANGUL': 52, 'GUJARATI': 14, 'CYRILLIC': 7, 'TAMIL': 5, 'CJK': 3, 'KANNADA': 2, 'MALAYALAM': 2, 'HEBREW': 2, 'TELUGU': 1, 'ARABIC': 1}
+  dominant_script_by_asset: {'BTC': {'LATIN': 687, 'HANGUL': 52, 'CYRILLIC': 6, 'CJK': 2, 'HEBREW': 2, 'ARABIC': 1}, 'NIFTY': {'LATIN': 574, 'DEVANAGARI': 150, 'GUJARATI': 14, 'TAMIL': 5, 'KANNADA': 2, 'MALAYALAM': 2, 'CYRILLIC': 1, 'CJK': 1, 'TELUGU': 1}}
+  headline_len_chars: {'count': 1499.0, 'mean': 87.9, 'std': 37.25, 'min': 21.0, '25%': 64.0, '50%': 79.0, '75%': 102.0, 'max': 253.0}
+  exact_duplicate_rows: 65
+  duplicate_text_any_time: 109
+  rows_after_clean_len_gt_10 (nb02 reports 1377): 1377
+  rows_dropped_by_clean_filter: 123
+  dropped_rows_by_script: {'HANGUL': 52, 'DEVANAGARI': 50, 'CYRILLIC': 7, 'TAMIL': 5, 'CJK': 3, 'HEBREW': 2, 'LATIN': 1, 'TELUGU': 1, 'MALAYALAM': 1, 'ARABIC': 1}
+  kept_non_latin_rows (garbled by ascii-only regex): 117
+  near_duplicate_clean_text: 192
+  headlines_per_day_per_asset: {'BTC': {'count': 91.0, 'mean': 7.54, 'std': 6.39, 'min': 0.0, '25%': 3.0, '50%': 6.0, '75%': 10.0, 'max': 32.0}, 'NIFTY': {'count': 91.0, 'mean': 7.59, 'std': 5.28, 'min': 0.0, '25%': 3.0, '50%': 7.0, '75%': 11.0, 'max': 23.0}}
+  days_with_headlines: {'BTC': 82, 'NIFTY': 87}
+
+====================================================================================================
+5. RECONSTRUCTED TRAINING TABLE (nb02 → nb03 → nb04 → pipeline/feature_engineering.py)
+====================================================================================================
+  vader_on_clean_text: {'count': 1377.0, 'mean': 0.1567, 'std': 0.307, 'min': -0.9136, '25%': 0.0, '50%': 0.0, '75%': 0.4019, 'max': 0.891}
+  aligned_rows (nb05 printed BTC shape (75, 15)): 77
+  aligned_date_range: ['2024-10-08', '2025-01-01']
+  rows_after_build_features_dropna: 13
+  train_rows: 10
+  test_rows: 3
+  train_dates: ['2024-12-14', '2024-12-24']
+  test_dates: ['2024-12-25', '2024-12-27']
+  why_so_few: rolling(60) in pipeline/feature_engineering.py:17 consumes 59 of the aligned rows; shift(-5) target consumes the last 5
+
+====================================================================================================
+5b. TARGET — log_vol_target in the reconstructed training table
+====================================================================================================
+count    13.000000
+mean     -3.850678
+std       0.329382
+min      -4.398969
+25%      -4.088339
+50%      -3.746161
+75%      -3.545800
+max      -3.505257
+  dummy_mean_rmse_vol_space: 0.009553206183977425
+  dummy_mean_mae_vol_space: 0.009413657530969635
+  y_train_values: [-3.50526, -3.6496, -3.73453, -4.39897, -3.74895, -3.74616, -3.52131, -3.5458, -3.53004, -3.95697]
+  y_test_values: [-4.08834, -4.29544, -4.33745]
+  vol_space_min_max: [0.012288998918154423, 0.030038062036667947]
+
+====================================================================================================
+5c. FULL-HISTORY TARGET — BTC 5-day realised vol, 5 days ahead (same definition as pipeline)
+====================================================================================================
+  vol_target: {'n': 3951, 'mean': np.float64(0.028584), 'median': np.float64(0.023812), 'std': np.float64(0.020172), 'skew': np.float64(2.36187), 'excess_kurtosis': np.float64(12.327075), 'jarque_bera_stat': 28689.282749, 'jarque_bera_p': 0.0}
+  log_vol_target: {'n': 3951, 'mean': np.float64(-3.775089), 'median': np.float64(-3.737509), 'std': np.float64(0.683985), 'skew': np.float64(-0.290712), 'excess_kurtosis': np.float64(0.166451), 'jarque_bera_stat': 60.213355, 'jarque_bera_p': 0.0}
+
+====================================================================================================
+6. RELATIONSHIPS — BTC price features vs target (full history)
+====================================================================================================
+Pearson:
+                 abs_return  sq_return  vol_5  vol_22  vol_60  log_vol_target
+abs_return           1.000      0.771  0.540   0.394   0.306           0.278
+sq_return            0.771      1.000  0.407   0.267   0.193           0.173
+vol_5                0.540      0.407  1.000   0.693   0.517           0.422
+vol_22               0.394      0.267  0.693   1.000   0.769           0.456
+vol_60               0.306      0.193  0.517   0.769   1.000           0.411
+log_vol_target       0.278      0.173  0.422   0.456   0.411           1.000
+Spearman:
+                 abs_return  sq_return  vol_5  vol_22  vol_60  log_vol_target
+abs_return           1.000      1.000  0.486   0.374   0.295           0.265
+sq_return            1.000      1.000  0.486   0.374   0.295           0.265
+vol_5                0.486      0.486  1.000   0.699   0.523           0.429
+vol_22               0.374      0.374  0.699   1.000   0.769           0.470
+vol_60               0.295      0.295  0.523   0.769   1.000           0.404
+log_vol_target       0.265      0.265  0.429   0.470   0.404           1.000
+Top |Pearson| feature pairs:
+ abs_return  sq_return    0.771
+vol_22      vol_60       0.769
+vol_5       vol_22       0.693
+abs_return  vol_5        0.540
+vol_5       vol_60       0.517
+sq_return   vol_5        0.407
+VIF:
+ abs_return    2.93
+sq_return     2.48
+vol_5         2.30
+vol_22        3.45
+vol_60        2.45
+Feature ↔ target ranking:
+             pearson_with_target  spearman_with_target  mutual_info
+vol_22                   0.4556                0.4703       0.2968
+vol_60                   0.4108                0.4039       0.2748
+vol_5                    0.4216                0.4294       0.1574
+sq_return                0.1735                0.2652       0.0652
+abs_return               0.2784                0.2652       0.0561
+
+====================================================================================================
+5c. FULL-HISTORY TARGET — NIFTY 5-day realised vol, 5 days ahead (same definition as pipeline)
+====================================================================================================
+  vol_target: {'n': 3862, 'mean': np.float64(0.008657), 'median': np.float64(0.007425), 'std': np.float64(0.005817), 'skew': np.float64(4.253701), 'excess_kurtosis': np.float64(36.345499), 'jarque_bera_stat': 224216.645953, 'jarque_bera_p': 0.0}
+  log_vol_target: {'n': 3862, 'mean': np.float64(-4.904175), 'median': np.float64(-4.90271), 'std': np.float64(0.545554), 'skew': np.float64(0.099876), 'excess_kurtosis': np.float64(0.769044), 'jarque_bera_stat': 101.591543, 'jarque_bera_p': 0.0}
+
+====================================================================================================
+6. RELATIONSHIPS — NIFTY price features vs target (full history)
+====================================================================================================
+Pearson:
+                 abs_return  sq_return  vol_5  vol_22  vol_60  log_vol_target
+abs_return           1.000      0.762  0.575   0.431   0.322           0.253
+sq_return            0.762      1.000  0.494   0.365   0.250           0.197
+vol_5                0.575      0.494  1.000   0.726   0.532           0.383
+vol_22               0.431      0.365  0.726   1.000   0.794           0.437
+vol_60               0.322      0.250  0.532   0.794   1.000           0.376
+log_vol_target       0.253      0.197  0.383   0.437   0.376           1.000
+Spearman:
+                 abs_return  sq_return  vol_5  vol_22  vol_60  log_vol_target
+abs_return           1.000      1.000  0.428   0.316   0.241           0.180
+sq_return            1.000      1.000  0.428   0.316   0.241           0.180
+vol_5                0.428      0.428  1.000   0.633   0.493           0.342
+vol_22               0.316      0.316  0.633   1.000   0.800           0.454
+vol_60               0.241      0.241  0.493   0.800   1.000           0.390
+log_vol_target       0.180      0.180  0.342   0.454   0.390           1.000
+Top |Pearson| feature pairs:
+ vol_22      vol_60       0.794
+abs_return  sq_return    0.762
+vol_5       vol_22       0.726
+abs_return  vol_5        0.575
+vol_5       vol_60       0.532
+sq_return   vol_5        0.494
+VIF:
+ abs_return    2.73
+sq_return     2.42
+vol_5         2.61
+vol_22        4.15
+vol_60        2.75
+Feature ↔ target ranking:
+             pearson_with_target  spearman_with_target  mutual_info
+vol_60                   0.3762                0.3897       0.2336
+vol_22                   0.4368                0.4537       0.2070
+vol_5                    0.3833                0.3425       0.1212
+abs_return               0.2530                0.1796       0.0333
+sq_return                0.1967                0.1796       0.0297
+
+====================================================================================================
+7. MISSINGNESS — joined daily calendar 2015-01-01 … 2025-12-31
+====================================================================================================
+% missing per column:
+ btc_close               0.05
+nifty_close            32.63
+btc_headlines          97.96
+nifty_headlines        97.83
+btc_trend_monthly      96.71
+nifty_trend_monthly    96.71
+Co-missing day counts:
+                      btc_close  nifty_close  btc_headlines  nifty_headlines  btc_trend_monthly  nifty_trend_monthly
+btc_close                    2            2              2                2                  1                    1
+nifty_close                  2         1311           1287             1285               1262                 1262
+btc_headlines                2         1287           3936             3927               3807                 3807
+nifty_headlines              2         1285           3927             3931               3802                 3802
+btc_trend_monthly            1         1262           3807             3802               3886                 3886
+nifty_trend_monthly          1         1262           3807             3802               3886                 3886
+Missing-indicator correlation:
+                      btc_close  nifty_close  btc_headlines  nifty_headlines  btc_trend_monthly  nifty_trend_monthly
+btc_close                1.000        0.032          0.003            0.003             -0.058               -0.058
+nifty_close              0.032        1.000          0.010            0.009             -0.018               -0.018
+btc_headlines            0.003        0.010          1.000            0.922              0.003                0.003
+nifty_headlines          0.003        0.009          0.922            1.000              0.001                0.001
+btc_trend_monthly       -0.058       -0.018          0.003            0.001              1.000                1.000
+nifty_trend_monthly     -0.058       -0.018          0.003            0.001              1.000                1.000
+NIFTY-missing days by weekday (0=Mon): {0: 34, 1: 29, 2: 31, 3: 29, 4: 41, 5: 573, 6: 574}
+
+====================================================================================================
+8. DUPLICATES
+====================================================================================================
+{'btc_prices': {'exact_duplicate_rows': 0, 'duplicate_dates': 0}, 'nifty_prices': {'exact_duplicate_rows': 0, 'duplicate_dates': 0}, 'btc_trends': {'exact_duplicate_rows': 0, 'duplicate_dates': 0}, 'nifty_trends': {'exact_duplicate_rows': 2, 'duplicate_dates': 2}, 'text_data': {'exact_duplicate_rows': 65, 'duplicate_text_values': 109}}

@@ -1,0 +1,8 @@
+file,bytes,lines,encoding,delimiter,header
+btc_google_trends.csv,1439,133,ascii (subset of utf-8),"','","date,google_trend"
+btc_prices.csv,423823,4017,ascii (subset of utf-8),"','","date,open,high,low,close,volume,return"
+manifest.json,13789,618,ascii (subset of utf-8),,
+nifty_google_trends.csv,2146,195,ascii (subset of utf-8),"','","date,google_trend"
+nifty_prices.csv,379817,3928,ascii (subset of utf-8),"','","date,open,high,low,close,volume,return"
+pipeline.log,7828,80,utf-8 (non-ASCII present),,
+text_data.csv,241848,1501,utf-8 (non-ASCII present),"','","timestamp,text,source,asset,channel"

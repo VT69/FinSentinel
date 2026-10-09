@@ -1,0 +1,141 @@
+
+====================================================================================================
+A. COMMITTED ARTIFACT models/rf_btc.pkl
+====================================================================================================
+  file_bytes: 232081
+  pickled_with_sklearn: 1.8.0
+  loaded_with_sklearn: 1.8.0
+  class: RandomForestRegressor
+  params: {'bootstrap': True, 'ccp_alpha': 0.0, 'criterion': 'squared_error', 'max_depth': 8, 'max_features': 'sqrt', 'max_leaf_nodes': None, 'max_samples': None, 'min_impurity_decrease': 0.0, 'min_samples_leaf': 10, 'min_samples_split': 2, 'min_weight_fraction_leaf': 0.0, 'monotonic_cst': None, 'n_estimators': 600, 'n_jobs': -1, 'oob_score': False, 'random_state': 42, 'verbose': 0, 'warm_start': False}
+  feature_names_in_: ['finbert_score', 'vader_score', 'finbert_surprise', 'vader_surprise', 'abs_return', 'sq_return', 'sent_x_vol5', 'sent_x_vol22', 'sent_x_absret']
+  n_trees: 600
+  distinct_tree_depths: [0]
+  distinct_node_counts: [1]
+  feature_importances_: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  distinct_bootstrap_sizes_at_root: [2, 3, 4, 5, 6, 7, 8]
+  per_tree_root_value_min_max: [-4.0869378769113265, -3.5244746866824848]
+  prediction_on_1000_random_inputs_unique: [np.float64(-3.7299326974)]
+  exp(prediction)=forecast_vol: 0.023994450670334223
+
+====================================================================================================
+B. RE-RUN run_pipeline.py training on the reconstructed table
+====================================================================================================
+  n_train: 10
+  n_test: 3
+  min_rows_needed_for_one_split (2*min_samples_leaf): 20
+  tree_depths: [0]
+  importances: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  rf_test_preds: [-3.72977313853664, -3.72977313853664, -3.72977313853664]
+  dummy_test_preds: [-3.7337584202065544, -3.7337584202065544, -3.7337584202065544]
+  rf_metrics: {'rmse_vol': 0.009647275176848151, 'mae_vol': 0.009509107111323722, 'r2_log': -21.991733545212437, 'qlike': 0.39039006380420965}
+  dummy_metrics: {'rmse_vol': 0.009553206183977429, 'mae_vol': 0.00941365753096964, 'r2_log': -21.649801323959675, 'qlike': 0.38537335497183167}
+  note: FinBERT columns hold VADER as a stand-in; irrelevant here because no tree can split.
+
+====================================================================================================
+C. WALK-FORWARD RE-EVALUATION (price features only, full history, TimeSeriesSplit(5, gap=5))
+====================================================================================================
+
+BTC — mean over 5 folds:
+                          test_rmse_vol  test_mae_vol  test_r2_log  test_qlike  train_rmse_vol  train_r2_log
+model                                                                                                      
+HAR_ols_log(vol5,22,60)        0.01878       0.01270      0.04738     1.14964         0.01960       0.28236
+rf_repo_params                 0.01912       0.01316     -0.02647     1.22098         0.01726       0.50850
+persistence_log_vol5           0.02156       0.01532     -0.36742     1.79893         0.02282      -0.03831
+dummy_mean                     0.02124       0.01501     -0.38470     1.96597         0.02250       0.00000
+BTC — per fold test R² (log):
+ model  HAR_ols_log(vol5,22,60)  dummy_mean  persistence_log_vol5  rf_repo_params
+fold                                                                            
+0                       -0.059      -1.288                -0.039          -0.115
+1                        0.164      -0.001                -0.229           0.110
+2                        0.039      -0.275                -0.494          -0.094
+3                        0.007      -0.219                -0.597          -0.044
+4                        0.086      -0.141                -0.478           0.010
+BTC — RF importances (last fold):
+             impurity  permutation_mean  permutation_std
+vol_22       0.39511           0.02290          0.00595
+abs_return   0.06794          -0.00184          0.00104
+sq_return    0.06488          -0.00194          0.00124
+vol_60       0.21338          -0.00365          0.00260
+vol_5        0.25869          -0.00687          0.00315
+BTC — RF error by quintile of ACTUAL future vol (last fold):
+                    n  mae_vol  bias_log
+actual_quintile                        
+Q1 calm          132  0.00902   0.65218
+Q2               131  0.00634   0.29034
+Q3               132  0.00344  -0.01897
+Q4               131  0.00653  -0.17922
+Q5 turbulent     132  0.01704  -0.54011
+BTC — 5 worst misses:
+       date  abs_err_vol  actual_vol  pred_vol
+2024-08-03      0.05422     0.07428   0.02006
+2024-08-04      0.05046     0.07074   0.02028
+2025-02-28      0.04509     0.06627   0.02118
+2024-03-15      0.04487     0.07418   0.02931
+2025-03-01      0.04434     0.06683   0.02249
+BTC — learning curve:
+  n_train  train_r2_log  test_r2_log
+     250        0.4079      -0.0446
+     500        0.4021      -0.0430
+    1000        0.4381       0.0185
+    2000        0.4145       0.0429
+    3288        0.4410       0.0103
+
+NIFTY — mean over 5 folds:
+                          test_rmse_vol  test_mae_vol  test_r2_log  test_qlike  train_rmse_vol  train_r2_log
+model                                                                                                      
+HAR_ols_log(vol5,22,60)        0.00488       0.00311      0.10007     0.54790         0.00453       0.20681
+rf_repo_params                 0.00519       0.00322      0.06198     0.68385         0.00388       0.41281
+dummy_mean                     0.00558       0.00363     -0.18624     0.89047         0.00524       0.00000
+persistence_log_vol5           0.00574       0.00396     -0.43896     1.26951         0.00542      -0.34204
+NIFTY — per fold test R² (log):
+ model  HAR_ols_log(vol5,22,60)  dummy_mean  persistence_log_vol5  rf_repo_params
+fold                                                                            
+0                        0.024      -0.193                -0.607           0.046
+1                        0.155      -0.325                -0.406           0.110
+2                        0.321      -0.001                -0.000           0.153
+3                        0.159      -0.008                -0.564           0.121
+4                       -0.159      -0.403                -0.618          -0.121
+NIFTY — RF importances (last fold):
+             impurity  permutation_mean  permutation_std
+vol_60       0.24023           0.00799          0.00271
+abs_return   0.06263          -0.00019          0.00063
+sq_return    0.05247          -0.00022          0.00047
+vol_5        0.19591          -0.00588          0.00142
+vol_22       0.44876          -0.01181          0.00508
+NIFTY — RF error by quintile of ACTUAL future vol (last fold):
+                    n  mae_vol  bias_log
+actual_quintile                        
+Q1 calm          129  0.00357   0.77680
+Q2               128  0.00164   0.29340
+Q3               129  0.00090   0.04732
+Q4               128  0.00121  -0.12142
+Q5 turbulent     129  0.00521  -0.45999
+NIFTY — 5 worst misses:
+       date  abs_err_vol  actual_vol  pred_vol
+2024-05-31      0.03299     0.03914   0.00615
+2024-05-29      0.03251     0.03856   0.00605
+2024-05-30      0.03228     0.03839   0.00611
+2024-06-03      0.02878     0.03648   0.00770
+2024-05-28      0.02773     0.03361   0.00588
+NIFTY — learning curve:
+  n_train  train_r2_log  test_r2_log
+     250        0.4073      -0.1229
+     500        0.4533      -0.1242
+    1000        0.4962      -0.1820
+    2000        0.4483      -0.1130
+    3214        0.3988      -0.1207
+
+====================================================================================================
+D. PLACEBO-TEST VALIDITY — real BTC forward vol vs an INDEPENDENT AR(1) fake 'GMSI'
+====================================================================================================
+  BTC fwd-7d-vol series: n=4009, lag-1 autocorrelation=0.928
+   {'fake_gmsi_ar1_phi': 0.0, 'n_sims': 200, 'false_positive_rate_iid_shuffle (repo)': 0.07, 'false_positive_rate_circular_shift': 0.07}
+   {'fake_gmsi_ar1_phi': 0.5, 'n_sims': 200, 'false_positive_rate_iid_shuffle (repo)': 0.225, 'false_positive_rate_circular_shift': 0.07}
+   {'fake_gmsi_ar1_phi': 0.9, 'n_sims': 200, 'false_positive_rate_iid_shuffle (repo)': 0.575, 'false_positive_rate_circular_shift': 0.06}
+   {'fake_gmsi_ar1_phi': 0.98, 'n_sims': 200, 'false_positive_rate_iid_shuffle (repo)': 0.74, 'false_positive_rate_circular_shift': 0.055}
+
+====================================================================================================
+E. CALIBRATED NULL for the published GMSI correlations (AR(1) phi=0.82 fake GMSI)
+====================================================================================================
+  BTC: {'n': 4009, 'published_spearman': -0.0837, 'null_sd_ar1': 0.041356584957607, 'null_sd_iid_shuffle_theory': 0.015795600590164088, 'variance_inflation_vs_iid': 6.855151414377907, 'two_sided_p_ar1_null': 0.046, 'two_sided_p_iid_normal_approx': 1.1647446754438945e-07}
+  NIFTY: {'n': 3920, 'published_spearman': -0.058, 'null_sd_ar1': 0.040443714699268114, 'null_sd_iid_shuffle_theory': 0.015973951748802794, 'variance_inflation_vs_iid': 6.410285015950444, 'two_sided_p_ar1_null': 0.147, 'two_sided_p_iid_normal_approx': 0.0002824223730048351}
