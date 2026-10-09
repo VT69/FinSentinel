@@ -14,7 +14,7 @@ Start reading: [`docs/README.md`](docs/README.md)
 | Question | Answer from the data |
 |---|---|
 | Can next-week volatility be forecast? | **A little, mostly from its own past.** A 4-parameter HAR model on trailing 5/22/60-day realised volatility gets out-of-sample R² (log σ) of **0.047 (BTC)** and **0.100 (NIFTY)** in purged walk-forward tests. It beats a Random Forest (−0.026 / 0.062), a persistence forecast and the historical mean on RMSE, MAE, R² and QLIKE. |
-| Where does it fail? | Event weeks it cannot see coming (Aug 2024 global sell-off for BTC; the June 2024 Indian election-result week for NIFTY). It shrinks toward the mean: it over-predicts calm weeks and under-predicts turbulent ones. |
+| Where does it fail? | Event weeks it cannot see coming: the March 2020 COVID crash (largest misses for both assets), the Aug 2024 global sell-off (BTC) and the June 2024 Indian election-result week (NIFTY). It shrinks toward the mean: it over-predicts calm weeks and under-predicts turbulent ones. |
 | How long do shocks last? | After a top-5% daily move, BTC's absolute returns stay **~1.5–1.7× normal for three weeks**; NIFTY's start at **2.0×** and fade to **1.3×** after 21 days. |
 | Does the news-based stress index (GMSI) predict volatility? | **Weakly at best.** Its lowest-stress quintile precedes the highest forward volatility (Spearman ρ = −0.084 BTC, −0.058 NIFTY), but once autocorrelation is handled the significance is borderline for BTC (**p ≈ 0.05**) and absent for NIFTY (**p ≈ 0.16**). The "complacency effect" is a hypothesis, not a finding. |
 | Does sentiment (FinBERT/VADER) help? | **Untested.** Headlines exist for only ~3 months (Oct 2024 – Jan 2025), about 13 usable rows. The sentiment Random Forest is archived. |
