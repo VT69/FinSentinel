@@ -1,0 +1,37 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  research:
+    name: pipeline + unit tests (Python 3.12)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q
+      - name: Rebuild models and dashboard data from raw prices
+        run: python run_pipeline.py --fast volatility
+      - name: Fail if committed models drifted from what the code produces
+        run: git diff --exit-code -- models/
+
+  dashboard:
+    name: dashboard (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: pip install -r dashboard/requirements.txt pytest
+      - run: pytest -q tests/test_dashboard.py tests/test_volatility.py
