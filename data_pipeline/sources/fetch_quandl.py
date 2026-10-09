@@ -126,10 +126,10 @@ def fetch_quandl(log=None):
         return []
 
     try:
-        import quandl
-        quandl.ApiConfig.api_key = api_key
+        import nasdaqdatalink   # successor of the deprecated `quandl` package (same get() API)
+        nasdaqdatalink.ApiConfig.api_key = api_key
     except ImportError:
-        log.error("quandl not installed. Run: pip install quandl")
+        log.error("nasdaq-data-link not installed. Run: pip install nasdaq-data-link")
         return []
 
     _RAW_DIR.mkdir(parents=True, exist_ok=True)
@@ -156,7 +156,7 @@ def fetch_quandl(log=None):
                 log.warning("Could not read cached file %s: %s", out_path, exc)
             continue
 
-        df = _pull_dataset(quandl, code, log)
+        df = _pull_dataset(nasdaqdatalink, code, log)
 
         if df is None:
             if ds.get("expected_unavailable"):

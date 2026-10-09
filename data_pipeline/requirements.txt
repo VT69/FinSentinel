@@ -30,4 +30,4 @@ praw>=7.7
 # Uses requests (already listed above)
 
 # ── Source 8: Quandl / Nasdaq Data Link ──────────────────────────────────────
-quandl>=3.6.0
+nasdaq-data-link>=1.0.4

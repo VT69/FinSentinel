@@ -15,7 +15,7 @@ Output columns per CSV
 open, high, low, close, volume, adj_close,
 log_return, vol_7d, vol_14d, vol_30d, vol_60d
 
-Rolling vols are annualised (×√252).
+Rolling vols are annualised with √365 for crypto (trades every day) and √252 otherwise.
 Index: date (YYYY-MM-DD, no timezone).
 NaNs preserved — no forward-fill.
 """
@@ -52,6 +52,7 @@ TICKERS = [
 ]
 
 START_DATE = "2010-01-01"
+CRYPTO = {"BTC-USD", "ETH-USD"}
 
 
 # ---------------------------------------------------------------------------
@@ -68,14 +69,14 @@ def _ticker_to_filename(ticker: str) -> str:
     return f"{clean}.csv"
 
 
-def _compute_features(df: pd.DataFrame) -> pd.DataFrame:
+def _compute_features(df: pd.DataFrame, periods_per_year: int = 252) -> pd.DataFrame:
     """Add log_return and annualised rolling volatility columns."""
     df = df.copy()
     df["log_return"] = np.log(df["close"] / df["close"].shift(1))
 
     for window in [7, 14, 30, 60]:
         df[f"vol_{window}d"] = (
-            df["log_return"].rolling(window).std() * np.sqrt(252)
+            df["log_return"].rolling(window).std() * np.sqrt(periods_per_year)
         )
     return df
 
@@ -132,7 +133,7 @@ def _download_ticker(ticker: str, log) -> pd.DataFrame | None:
     raw.index = raw.index.strftime("%Y-%m-%d")
 
     # Add derived columns
-    raw = _compute_features(raw)
+    raw = _compute_features(raw, 365 if ticker in CRYPTO else 252)
 
     return raw
 
