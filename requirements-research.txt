@@ -1,5 +1,6 @@
 # Research / training environment — Python 3.12 or 3.13 (numpy 2.5 needs >= 3.12).
 # Exact versions tested together: `python run_pipeline.py` and `pytest` pass with these.
+# Deliberately NOT named requirements.txt: Streamlit Cloud must only see dashboard/requirements.txt.
 # Dashboard-only deps live in dashboard/requirements.txt; data fetchers in data_pipeline/requirements.txt;
 # FinBERT (torch/transformers) in requirements-nlp.txt.
 numpy==2.5.3

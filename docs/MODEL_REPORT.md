@@ -1,5 +1,7 @@
 # FinSentinel — Model Report
 
+> **Status after fixes.** This report audits commit `e1eb270`. The repository now serves the HAR model evaluated in §7b; `run_pipeline.py` reproduces those walk-forward numbers exactly (`dashboard/data/metrics.json`). The calibrated GMSI p-values are Monte-Carlo estimates: this report's run gave 0.046 (BTC) / 0.147 (NIFTY), and `run_pipeline.py` (a different random stream, 2,000 draws) gives 0.046 / 0.163. Quote them as "≈0.05" and "≈0.15".
+
 > All numbers come from `analysis/model_eval.py` (`analysis/outputs/model_eval_stdout.txt`, `model_eval_summary.json`, `model_eval_walk_forward.csv`, `model_eval_{btc,nifty}.png`, `model_eval_placebo_validity.csv`) and `analysis/verify_dashboard_numbers.py`, run in this session.
 > Environment: Python 3.12.3, scikit-learn 1.8.0 (the artifact's own version), numpy 2.5.3, pandas 3.0.6, scipy 1.18.1.
 

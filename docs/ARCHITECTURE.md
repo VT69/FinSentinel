@@ -1,10 +1,125 @@
-# FinSentinel — Architecture (as the code actually is)
+# FinSentinel — Architecture
 
-> Scope: this documents the repository at commit `e1eb270` (2026-03-23), read end to end.
-> Every claim cites `file:line` (or `notebook cell N` for notebooks, which have no stable line numbers).
-> Where the README or dashboard describes something the code does not do, that is called out explicitly.
+This document has two parts:
+- **Part A** describes the **current** system, after the fixes. It is what you should explain in an interview.
+- **Part B** is the forensic audit of the **original** code at commit `e1eb270`. It explains *why* things changed.
 
 ---
+
+# Part A — Current architecture
+
+## A1. End-to-end narrative
+
+1. **Raw data**: committed daily prices in `data/raw/{btc,nifty}_prices.csv`, loaded and validated by `pipeline/data.py:25-45` (required columns, unique dates, positive closes).
+2. **Features and target**: `pipeline/volatility.py:51-75` turns a close series into trailing features and the target. Every feature uses only data up to day t.
+   - Features: log returns, |r|, r², and 5/22/60-day realised vol (raw and log).
+   - Target: log std of the next 5 log returns.
+3. **Training and evaluation**: `run_pipeline.py:47-114`.
+   - Purged walk-forward comparison of HAR, Random Forest, persistence and mean baselines (5 expanding folds, 5-day gap).
+   - The final HAR model is then fit on all rows (`pipeline/volatility.py:90-96`) and written as JSON to `models/har_{asset}.json` (L108-111).
+4. **Research outputs**, also written by `run_pipeline.py`:
+   - MFI and shock propagation on real prices (`pipeline/market_dynamics.py`), saved to `dashboard/data/*.csv` (L99-114).
+   - A calibrated null for the published GMSI correlations (`pipeline/stats.py:76-95`), saved to `dashboard/data/gmsi_calibration.json` (L117-145).
+5. **Serving**: `dashboard/app.py` routes to one module per page in `dashboard/views/`.
+   - All file reads go through `dashboard/data.py`: the model is loaded with `st.cache_resource` (L44-46), prices and tables with `st.cache_data` (L39-62).
+   - The forecast page calls `pipeline.volatility.forecast()` (L155-170), the **same** `price_features()` function used in training.
+
+## A2. Components
+
+```mermaid
+flowchart LR
+  RAW[(data/raw/*_prices.csv)] --> D[pipeline/data.py<br/>validated loaders]
+  D --> V[pipeline/volatility.py<br/>features · target · HARModel · forecast]
+  D --> MD[pipeline/market_dynamics.py<br/>MFI · shocks · regimes]
+  D --> ST[pipeline/stats.py<br/>circular-shift test · AR1 null]
+  V & MD & ST --> RP[run_pipeline.py]
+  RP --> M[(models/har_*.json)]
+  RP --> DD[(dashboard/data/*.csv, *.json)]
+  M & DD & RAW --> DL[dashboard/data.py<br/>st.cache_resource / st.cache_data]
+  V --> DL
+  DL --> VIEWS[dashboard/views/*.py] --> APP[dashboard/app.py]
+  FIG[(reports/figures/*.png)] --> DL
+  S08[scripts/08_market_dynamics_analysis.py] --> FIG
+  MD --> S08
+  VG[scripts/validate_gmsi.py, regime_analysis.py] -. needs uncommitted GMSI .-> FIG
+  ST --> VG
+```
+
+## A3. Training vs inference: the boundary
+
+```mermaid
+flowchart TB
+  subgraph TRAIN["TRAINING — offline: python run_pipeline.py (~1 min)"]
+    T1[load_close(asset)] --> T2["price_features() → training_frame()<br/>drop NaN rows on used columns only"]
+    T2 --> T3["walk-forward: TimeSeriesSplit(5, gap=5)<br/>HAR · RF · persistence · mean"]
+    T3 --> T4[metrics.json, oos_*.csv]
+    T2 --> T5["HARModel.fit(all rows) → OLS on log σ5, σ22, σ60"]
+    T5 --> T6[(models/har_asset.json<br/>intercept + 3 coefs + feature contract)]
+  end
+  T6 == "boundary: a JSON file with a versioned feature contract<br/>(windows, horizon, feature names checked on load)" ==> I2
+  subgraph INFER["INFERENCE — dashboard request"]
+    I1[user picks date or pastes closes] --> I0["validate_closes / parse_closes<br/>InputError → friendly st.error"]
+    I0 --> I3["price_features(with_target=False) — SAME function"]
+    I2["HARModel.from_json (st.cache_resource)"] --> I4
+    I3 --> I4["predict_log → exp − 1e-6 → daily σ, ×√365 / √252"]
+    I4 --> I5[cards + realised σ if the data has it]
+  end
+```
+
+**What is baked into the artifact:** the intercept, 3 coefficients, the windows `(5, 22, 60)`, the horizon `5`, and training metadata and metrics. No preprocessing object needs to be serialized, because the features are a deterministic function of the closes. `HARModel.from_json` (`pipeline/volatility.py:113-123`) **refuses** a file whose windows, horizon or feature names differ from the code, which makes train/serve skew a load-time error instead of a silent bug.
+
+**What the caller must provide:** at least 61 strictly positive, finite, consecutive daily closes, oldest first (`pipeline/volatility.py:140-152`).
+
+## A4. Runtime request path
+
+```mermaid
+sequenceDiagram
+  actor U as User
+  participant S as Streamlit
+  participant A as app.py
+  participant F as views/forecast.py
+  participant C as dashboard/data.py (caches)
+  participant P as pipeline/volatility.py
+  U->>S: choose "Volatility forecast", BTC, date
+  S->>A: rerun
+  A->>F: render()
+  F->>C: model("BTC") [cache_resource], prices("BTC") [cache_data]
+  F->>P: forecast(model, closes up to date)
+  P->>P: validate → price_features → predict
+  P-->>F: daily σ, annualised σ, inputs, warning
+  F->>C: metrics(), table("oos", BTC)
+  F-->>U: cards + model comparison + out-of-sample chart
+```
+
+Measured with a real browser (`tests/e2e/browser_smoke.py`, Streamlit 1.63.0, Python 3.11): first paint 2.5–3.8 s, each page 0.6–4.3 s, 0 exceptions, 0 console errors. Before the fix the landing page took 185 s.
+
+## A5. Module table
+
+| File | Responsibility | Key functions | Called by | Calls |
+|---|---|---|---|---|
+| `pipeline/data.py` | paths, validated price loading | `load_prices` L25, `load_close` L43 | run_pipeline, scripts/08, dashboard/data | pandas |
+| `pipeline/volatility.py` | feature/target contract, HAR model, input validation, forecast | `price_features` L51, `training_frame` L72, `HARModel` L78, `parse_closes` L126, `validate_closes` L140, `forecast` L155 | run_pipeline, dashboard, tests | numpy, pandas |
+| `pipeline/market_dynamics.py` | MFI, shocks, regimes, within-spell AC1 | `compute_mfi` L33, `identify_shocks` L56, `shock_propagation` L64, `expanding_regimes` L80, `within_spell_ac1` L89 | run_pipeline, scripts/08, regime_analysis | numpy, pandas |
+| `pipeline/stats.py` | valid significance tests | `permutation_test` L42, `ar1_null` L76 | run_pipeline, validate_gmsi | scipy |
+| `pipeline/sentiment.py` | text cleaning, FinBERT polarity by label name | `clean_text`, `finbert_polarity`, `score_finbert` | notebooks 02/03 | transformers (lazy) |
+| `run_pipeline.py` | all offline training and results | `walk_forward` L47, `run_volatility` L80, `run_gmsi_calibration` L117, `run_sentiment_rf` L148 | CLI, CI | pipeline.*, sklearn |
+| `dashboard/data.py` | cached file access, missing-artifact errors | `model` L45, `prices` L40, `metrics` L50, `table` L60 | views | pipeline.volatility, pipeline.data |
+| `dashboard/views/*.py` | one page each | `render()` | app.py | data, plotly |
+
+## A6. State, seeds, paths, magic numbers (current)
+- **Seeds:** RF `random_state=42` (`pipeline/train_rf_model.py:9-10`); all Monte-Carlo code uses `np.random.default_rng(seed)` (`pipeline/stats.py`, `run_pipeline.py:32`). There is no global RNG mutation anywhere.
+- **Shared state:** only Streamlit's caches and per-user widget state. No module-level mutable data.
+- **Paths:** every path is derived from `Path(__file__).resolve()` (`pipeline/data.py:8-12`, `dashboard/data.py:18`, `scripts/*.py`). Commands work from any CWD.
+- **Magic numbers, all named constants with comments:**
+  - `HORIZON=5`, `WINDOWS=(5,22,60)`, `EPS=1e-6`, `ANNUALISATION_DAYS` (`pipeline/volatility.py:28-33`)
+  - `MFI_WINDOW=30`, `SHOCK_QUANTILE=0.95`, `SHOCK_BURN_IN=250` (`pipeline/market_dynamics.py:22-25`)
+  - `PUBLISHED_GMSI_SPEARMAN`, `GMSI_LAG1_ACF=0.82` (`run_pipeline.py:35-36`): inputs taken from the original analysis, because the GMSI series is not committed
+
+---
+
+# Part B — Audit of the original code (commit `e1eb270`)
+
+> Scope: the repository at commit `e1eb270` (2026-03-23), read end to end. Line numbers refer to that commit (`git show e1eb270:<path>`). Every claim cites `file:line` (or `notebook cell N`).
 
 ## 0. The one-paragraph truth
 
