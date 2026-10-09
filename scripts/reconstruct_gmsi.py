@@ -1,5 +1,18 @@
-import pandas as pd
+"""
+scripts/reconstruct_gmsi.py — the exogenous Global Market Stress Index (GMSI).
+
+GMSI_t = mean of six expanding z-scores (equal weights, NO PCA): event count,
+negative-event share, −Goldstein, −sentiment, −sentiment surprise, attention.
+Missing components are set to 0 ("neutral") before averaging. Sentiment exists
+only for 2024-10 → 2025-01, so on most days three of the six terms are 0 and the
+index is effectively a 3-component index scaled by 1/2 (docs/ISSUES.md P1-7).
+"""
 import numpy as np
+import pandas as pd
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+PROCESSED = ROOT / "data" / "processed"
 
 def expanding_z_score(series, min_periods=30):
     mean = series.expanding(min_periods=min_periods).mean()
@@ -10,11 +23,11 @@ def reconstruct_gmsi():
     print("Reconstructing Pure Exogenous GMSI...")
     
     # 1. Global Daily Events (Counts & Metrics)
-    events_daily = pd.read_csv('data/processed/events_daily_2015_2025.csv')
+    events_daily = pd.read_csv(PROCESSED / 'events_daily_2015_2025.csv')
     events_daily['date'] = pd.to_datetime(events_daily['date']).dt.normalize()
     
     # 2. Text Sentiment (Average globally per day)
-    text_df = pd.read_csv('data/processed/text_with_sentiment.csv')
+    text_df = pd.read_csv(PROCESSED / 'text_with_sentiment.csv')
     text_df['date'] = pd.to_datetime(text_df['timestamp']).dt.tz_localize(None).dt.normalize()
     # Average finbert and vader
     daily_sentiment = text_df.groupby('date')[['finbert_score', 'vader_score']].mean().reset_index()
@@ -22,7 +35,7 @@ def reconstruct_gmsi():
     daily_sentiment['sentiment_core'] = daily_sentiment['finbert_score'].fillna(daily_sentiment['vader_score'])
     
     # 3. Attention proxy based on event intensity (btc and nifty)
-    daily_events = pd.read_csv('data/processed/daily_events.csv')
+    daily_events = pd.read_csv(PROCESSED / 'daily_events.csv')
     daily_events['date'] = pd.to_datetime(daily_events['date']).dt.normalize()
     global_attention = daily_events.groupby('date')['event_intensity'].mean().reset_index()
     global_attention.rename(columns={'event_intensity': 'attention'}, inplace=True)
@@ -62,6 +75,8 @@ def reconstruct_gmsi():
                   'sentiment_z_inv', 'sentiment_surprise_z_inv', 'attention_z']
     
     # Only keep the ones fully calculated
+    coverage = df[z_features].notna().mean()
+    print("Component coverage (share of days with a value):\n" + coverage.round(3).to_string())
     df_scores = df[z_features].fillna(0)
     
     # Equal weight sum/average of these stress indicators
@@ -87,7 +102,7 @@ def reconstruct_gmsi():
     
     final_df = final_df[[c for c in out_cols if c in final_df]]
     
-    output_path = 'data/processed/gmsi_exogenous.csv'
+    output_path = PROCESSED / 'gmsi_exogenous.csv'
     final_df.to_csv(output_path, index=False)
     
     print(f"Dataset saved to {output_path}")

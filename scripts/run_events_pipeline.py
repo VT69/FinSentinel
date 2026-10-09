@@ -8,14 +8,12 @@ from datetime import datetime, timedelta
 # ==========================
 # CONFIG
 # ==========================
+# Usage: python scripts/run_events_pipeline.py [START YYYY-MM-DD] [END YYYY-MM-DD]
 START_DATE = "2025-05-30"
 END_DATE   = "2025-12-31"
 
-OUT_DIR = "../data/raw/gdelt/events_filtered"
-TMP_DIR = "../data/raw/gdelt/tmp"
-
-os.makedirs(OUT_DIR, exist_ok=True)
-os.makedirs(TMP_DIR, exist_ok=True)
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_DIR = os.path.join(_ROOT, "data", "raw", "gdelt", "events_filtered")
 
 # ==========================
 # GDELT EVENTS SCHEMA (2.1)
@@ -93,82 +91,89 @@ def daterange(start, end):
 # ==========================
 # MAIN PIPELINE
 # ==========================
-for d in daterange(START_DATE, END_DATE):
+def main(start=START_DATE, end=END_DATE):
+    os.makedirs(OUT_DIR, exist_ok=True)
+    for d in daterange(start, end):
 
-    day_str = d.strftime("%Y%m%d")
-    out_csv = os.path.join(OUT_DIR, f"{d.strftime('%Y-%m-%d')}.csv")
+        day_str = d.strftime("%Y%m%d")
+        out_csv = os.path.join(OUT_DIR, f"{d.strftime('%Y-%m-%d')}.csv")
 
-    if os.path.exists(out_csv):
-        continue
+        if os.path.exists(out_csv):
+            continue
 
-    print(f"\n📅 Processing {d.strftime('%Y-%m-%d')}")
+        print(f"\n📅 Processing {d.strftime('%Y-%m-%d')}")
 
-    url = f"http://data.gdeltproject.org/events/{day_str}.export.CSV.zip"
+        url = f"http://data.gdeltproject.org/events/{day_str}.export.CSV.zip"
 
-    try:
-        r = requests.get(url, timeout=60)
-        r.raise_for_status()
-    except Exception as e:
-        print(f"  ❌ Download failed: {e}")
-        continue
+        try:
+            r = requests.get(url, timeout=60)
+            r.raise_for_status()
+        except Exception as e:
+            print(f"  ❌ Download failed: {e}")
+            continue
 
-    try:
-        z = zipfile.ZipFile(io.BytesIO(r.content))
-        csv_name = z.namelist()[0]
-    except Exception as e:
-        print(f"  ❌ Zip error: {e}")
-        continue
+        try:
+            z = zipfile.ZipFile(io.BytesIO(r.content))
+            csv_name = z.namelist()[0]
+        except Exception as e:
+            print(f"  ❌ Zip error: {e}")
+            continue
 
-    rows = []
+        rows = []
 
-    with z.open(csv_name) as f:
-        for chunk in pd.read_csv(
-            f,
-            sep="\t",
-            names=COLS,
-            dtype=str,
-            chunksize=100_000,
-            on_bad_lines="skip",
-            low_memory=False
-        ):
+        with z.open(csv_name) as f:
+            for chunk in pd.read_csv(
+                f,
+                sep="\t",
+                names=COLS,
+                dtype=str,
+                chunksize=100_000,
+                on_bad_lines="skip",
+                low_memory=False
+            ):
 
-            # Core filters
-            chunk = chunk[
-                chunk["EventRootCode"].isin(KEEP_EVENT_ROOTS) &
-                (
-                    chunk["Actor1CountryCode"].isin(IMPORTANT_COUNTRIES) |
-                    chunk["Actor2CountryCode"].isin(IMPORTANT_COUNTRIES) |
-                    chunk["ActionGeo_CountryCode"].isin(IMPORTANT_COUNTRIES)
-                )
+                # Core filters
+                chunk = chunk[
+                    chunk["EventRootCode"].isin(KEEP_EVENT_ROOTS) &
+                    (
+                        chunk["Actor1CountryCode"].isin(IMPORTANT_COUNTRIES) |
+                        chunk["Actor2CountryCode"].isin(IMPORTANT_COUNTRIES) |
+                        chunk["ActionGeo_CountryCode"].isin(IMPORTANT_COUNTRIES)
+                    )
+                ]
+
+                if not chunk.empty:
+                    rows.append(chunk)
+
+        if not rows:
+            print("  ⚠️ No relevant events")
+            continue
+
+        out = pd.concat(rows, ignore_index=True)
+
+        # Reduce size early
+        out = out[
+            [
+                "Day",
+                "EventRootCode",
+                "EventCode",
+                "GoldsteinScale",
+                "AvgTone",
+                "Actor1Name",
+                "Actor2Name",
+                "Actor1CountryCode",
+                "Actor2CountryCode",
+                "ActionGeo_CountryCode",
+                "SOURCEURL"
             ]
-
-            if not chunk.empty:
-                rows.append(chunk)
-
-    if not rows:
-        print("  ⚠️ No relevant events")
-        continue
-
-    out = pd.concat(rows, ignore_index=True)
-
-    # Reduce size early
-    out = out[
-        [
-            "Day",
-            "EventRootCode",
-            "EventCode",
-            "GoldsteinScale",
-            "AvgTone",
-            "Actor1Name",
-            "Actor2Name",
-            "Actor1CountryCode",
-            "Actor2CountryCode",
-            "ActionGeo_CountryCode",
-            "SOURCEURL"
         ]
-    ]
 
-    out.to_csv(out_csv, index=False)
-    print(f"  ✅ Saved {len(out)} rows")
+        out.to_csv(out_csv, index=False)
+        print(f"  ✅ Saved {len(out)} rows")
 
-print("\n🎯 EVENTS PIPELINE COMPLETE")
+    print("\n🎯 EVENTS PIPELINE COMPLETE")
+
+
+if __name__ == "__main__":
+    import sys
+    main(*sys.argv[1:3])

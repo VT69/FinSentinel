@@ -1,14 +1,18 @@
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+PROCESSED = ROOT / "data" / "processed"
 
 def create_vsi_dataset(price_path, text_path, events_path, asset_name, output_path):
-    print(f"\\n{'='*50}")
+    print(f"\n{'='*50}")
     print(f"Processing {asset_name} VSI Dataset")
     print(f"{'='*50}")
     
     # Task 1 - Load Base Price Data
-    print("\\n[Task 1] Loading Base Price Data")
+    print("\n[Task 1] Loading Base Price Data")
     df = pd.read_csv(price_path)
     df['date'] = pd.to_datetime(df['date'])
     df = df.sort_values('date').reset_index(drop=True)
@@ -18,21 +22,21 @@ def create_vsi_dataset(price_path, text_path, events_path, asset_name, output_pa
     print(f"  Row count: {len(df)}")
     
     # Task 2 - Compute Returns & Volatility
-    print("\\n[Task 2] Computing Returns & Volatility")
+    print("\n[Task 2] Computing Returns & Volatility")
     # Log return formula: ln(P_t / P_t-1)
     df['return'] = np.log(df['close'] / df['close'].shift(1))
     
     # Rolling volatility (annualized or just raw std, we'll use raw std of log returns for daily)
-    df['volatility_7d'] = df['return'].rolling(window=7, min_periods=1).std()
-    df['volatility_14d'] = df['return'].rolling(window=14, min_periods=1).std()
-    df['volatility_30d'] = df['return'].rolling(window=30, min_periods=1).std()
+    df['volatility_7d'] = df['return'].rolling(window=7, min_periods=7).std()
+    df['volatility_14d'] = df['return'].rolling(window=14, min_periods=14).std()
+    df['volatility_30d'] = df['return'].rolling(window=30, min_periods=30).std()
     
     print(f"  NaNs in volatility_7d: {df['volatility_7d'].isna().sum()}")
     print(f"  NaNs in volatility_14d: {df['volatility_14d'].isna().sum()}")
     print(f"  NaNs in volatility_30d: {df['volatility_30d'].isna().sum()}")
     
     # Task 3 - Attach Sentiment Data
-    print("\\n[Task 3] Attaching Sentiment Data")
+    print("\n[Task 3] Attaching Sentiment Data")
     rows_before = len(df)
     
     # Process text sentiment
@@ -90,7 +94,7 @@ def create_vsi_dataset(price_path, text_path, events_path, asset_name, output_pa
     print(f"  Row count after merge: {rows_after}")
     
     # Task 4 - Feature Normalization (Z-score expanding to avoid leakage)
-    print("\\n[Task 4] Feature Normalization")
+    print("\n[Task 4] Feature Normalization")
     def expanding_z_score(series, min_periods=30):
         mean = series.expanding(min_periods=min_periods).mean()
         std = series.expanding(min_periods=min_periods).std()
@@ -113,7 +117,7 @@ def create_vsi_dataset(price_path, text_path, events_path, asset_name, output_pa
         df['attention_z'] = np.nan
         
     # Task 5 - Construct VSI
-    print("\\n[Task 5] Constructing VSI")
+    print("\n[Task 5] Constructing VSI")
     # Formula: VSI = w1 * vol_z + w2 * sentiment_z + w3 * attention_z
     # Weights = equal where available. Z-scores already handle scale.
     # To properly compute without losing rows, we treat NaNs as 0 (neutral) for sentiment/attention,
@@ -137,7 +141,7 @@ def create_vsi_dataset(price_path, text_path, events_path, asset_name, output_pa
     print("  Calculated VSI using equal weights for available z-score features.")
     
     # Task 6 - Final Dataset Integrity Check
-    print("\\n[Task 6] Final Dataset Integrity Check")
+    print("\n[Task 6] Final Dataset Integrity Check")
     # "Drop rows only if VSI cannot be computed"
     # Actually, if vol_z is NaN (e.g. first 30 days), VSI might be 0 because we filled with 0. 
     # But truly, if 'volatility_30d' is NaN, we probably shouldn't have a VSI.
@@ -179,20 +183,20 @@ def create_vsi_dataset(price_path, text_path, events_path, asset_name, output_pa
 if __name__ == '__main__':
     # BTC
     create_vsi_dataset(
-        price_path='data/raw/btc_prices.csv',
-        text_path='data/processed/text_with_sentiment.csv',
-        events_path='data/processed/daily_events.csv',
+        price_path=ROOT / 'data/raw/btc_prices.csv',
+        text_path=PROCESSED / 'text_with_sentiment.csv',
+        events_path=PROCESSED / 'daily_events.csv',
         asset_name='BTC',
-        output_path='data/processed/btc_vsi_full.csv'
+        output_path=PROCESSED / 'btc_vsi_full.csv'
     )
     
     # NIFTY
     create_vsi_dataset(
-        price_path='data/raw/nifty_prices.csv',
-        text_path='data/processed/text_with_sentiment.csv',
-        events_path='data/processed/daily_events.csv',
+        price_path=ROOT / 'data/raw/nifty_prices.csv',
+        text_path=PROCESSED / 'text_with_sentiment.csv',
+        events_path=PROCESSED / 'daily_events.csv',
         asset_name='NIFTY',
-        output_path='data/processed/nifty_vsi_full.csv'
+        output_path=PROCESSED / 'nifty_vsi_full.csv'
     )
     
-    print("\\nDone!")
+    print("\nDone!")
