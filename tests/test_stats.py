@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
 
-from pipeline import stats
+pytest.importorskip("scipy")
+from pipeline import stats  # noqa: E402
 
 
 def _fpr(method, phi=0.95, n=600, sims=80):
