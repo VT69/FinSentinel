@@ -149,8 +149,9 @@ def fetch_gdelt(log=None):
         month_key = month_start.strftime("%Y_%m")
         parquet_path = _CACHE_DIR / f"{month_key}.parquet"
 
-        # Use parquet cache if valid
-        if parquet_path.exists():
+        # Use parquet cache if valid — but always re-query the current, still-incomplete month
+        is_current_month = (month_start.year, month_start.month) == (today.year, today.month)
+        if parquet_path.exists() and not is_current_month:
             try:
                 df_month = pd.read_parquet(parquet_path)
                 all_months.append(df_month)
