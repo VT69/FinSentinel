@@ -1,3 +1,5 @@
+> **Historical record (pre-audit).** This walkthrough was generated during the original analysis. Several statements below were later found to be wrong or overstated — notably the i.i.d. placebo p-values ("empirical p=0.000"), full-sample regime thresholds, and AR(1) persistence computed across non-contiguous days. Corrected numbers: `docs/MODEL_REPORT.md` and the dashboard. Figure paths were made relative; the `regime/` figures were produced with the old (look-ahead) thresholds.
+
 # GMSI Reconstruction and Validation Walkthrough
 
 The goal of this task was to correct and rebuild the Global Market Stress Index (GMSI) to be a **purely exogenous stress signal**. We aimed to systematically remove any embedded mechanical coupling with market volatility and then subject the new signal to rigorous, causally sound validation.
@@ -25,7 +27,7 @@ First, we confirmed that the new signal was well-behaved and free of leakage:
 - **Stationarity**: Passed ADF test strongly ($p < 4.05 \times 10^{-10}$).
 - **Same-Day Correlation**: Eliminated the ~0.9+ correlations seen previously. The same-day correlation against 30d volatility dropped to **-0.117** for BTC and **-0.237** for NIFTY, confirming the removal of mechanical coupling.
 
-![GMSI Sanity Checks](C:/Users/Dell/.gemini/antigravity/brain/b9f0a65c-a7ae-44dc-951c-061e876e4759/gmsi_sanity_checks.png)
+![GMSI Sanity Checks](figures/gmsi_sanity_checks.png)
 
 ---
 
@@ -52,9 +54,9 @@ In fact, the correlations inverted into a slight negative relationship:
 When bucketed into quintiles, the highest GMSI quintile (Q5) actually precedes slightly *lower* mean forward volatility compared to the lowest stress quintile (Q1).
 
 ````carousel
-![BTC Conditional Expectations](C:/Users/Dell/.gemini/antigravity/brain/b9f0a65c-a7ae-44dc-951c-061e876e4759/cond_exp_BTC.png)
+![BTC Conditional Expectations](figures/cond_exp_BTC.png)
 <!-- slide -->
-![NIFTY Conditional Expectations](C:/Users/Dell/.gemini/antigravity/brain/b9f0a65c-a7ae-44dc-951c-061e876e4759/cond_exp_NIFTY.png)
+![NIFTY Conditional Expectations](figures/cond_exp_NIFTY.png)
 ````
 
 ### Tail Event Analysis
@@ -69,9 +71,9 @@ When evaluating the top 5% most volatile periods (7-day forward tail events), GM
 1000 randomized shuffles of the time series confirmed that the true correlations, while small and negative, were statistically distinct from noise.
 
 ````carousel
-![BTC Placebo Test](C:/Users/Dell/.gemini/antigravity/brain/b9f0a65c-a7ae-44dc-951c-061e876e4759/placebo_test_BTC.png)
+![BTC Placebo Test](figures/placebo_test_BTC.png)
 <!-- slide -->
-![NIFTY Placebo Test](C:/Users/Dell/.gemini/antigravity/brain/b9f0a65c-a7ae-44dc-951c-061e876e4759/placebo_test_NIFTY.png)
+![NIFTY Placebo Test](figures/placebo_test_NIFTY.png)
 ````
 
 ## Conclusion & Scientific Assessment
@@ -115,7 +117,7 @@ We analyzed how forward volatility evolves $t+1, t+7, t+14$ days following an ex
 - **NIFTY**: A shock in Low Stress yields $t+7$ volatility of 0.027. In High Stress, it vanishes immediately, settling at 0.010.
 
 ````carousel
-![BTC Shock Response](C:/Users/Dell/.gemini/antigravity/brain/b9f0a65c-a7ae-44dc-951c-061e876e4759/regime/shock_response.png)
+![BTC Shock Response](figures/regime/shock_response.png)
 ````
 
 ### Tail Risk Conditioning
@@ -129,9 +131,9 @@ We calculated the probability of observing a top 5% volatility tail event condit
 *(Note: KS tests confirm these distributions are statistically fundamentally different, $p < 0.001$)*
 
 ````carousel
-![Boxplots Vol by Regime](C:/Users/Dell/.gemini/antigravity/brain/b9f0a65c-a7ae-44dc-951c-061e876e4759/regime/boxplot_vol_by_regime.png)
+![Boxplots Vol by Regime](figures/regime/boxplot_vol_by_regime.png)
 <!-- slide -->
-![Heatmaps Regime vs Vol](C:/Users/Dell/.gemini/antigravity/brain/b9f0a65c-a7ae-44dc-951c-061e876e4759/regime/heatmap_regime_vs_vol.png)
+![Heatmaps Regime vs Vol](figures/regime/heatmap_regime_vs_vol.png)
 ````
 
 ### Scientific Interpretation
