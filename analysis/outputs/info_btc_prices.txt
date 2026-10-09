@@ -1,0 +1,14 @@
+<class 'pandas.DataFrame'>
+RangeIndex: 4016 entries, 0 to 4015
+Data columns (total 7 columns):
+ #   Column  Non-Null Count  Dtype         
+---  ------  --------------  -----         
+ 0   date    4016 non-null   datetime64[us]
+ 1   open    4016 non-null   float64       
+ 2   high    4016 non-null   float64       
+ 3   low     4016 non-null   float64       
+ 4   close   4016 non-null   float64       
+ 5   volume  4016 non-null   int64         
+ 6   return  4016 non-null   float64       
+dtypes: datetime64[us](1), float64(5), int64(1)
+memory usage: 219.8 KB

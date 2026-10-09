@@ -1,0 +1,9 @@
+<class 'pandas.DataFrame'>
+RangeIndex: 132 entries, 0 to 131
+Data columns (total 2 columns):
+ #   Column        Non-Null Count  Dtype
+---  ------        --------------  -----
+ 0   date          132 non-null    str  
+ 1   google_trend  132 non-null    int64
+dtypes: int64(1), str(1)
+memory usage: 2.2 KB
