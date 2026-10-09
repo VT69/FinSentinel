@@ -1,6 +1,6 @@
-streamlit==1.40.0
-pandas>=2.0.0
-numpy>=1.24.0
-plotly>=5.18.0
-scipy>=1.11.0
-Pillow>=10.0.0
+# Dashboard runtime only — pinned, tested together on Python 3.11, 3.12 and 3.13.
+# (Training/analysis deps are in the repo-root requirements.txt.)
+streamlit==1.63.0
+pandas==3.0.5
+numpy==2.4.6
+plotly==6.9.0
