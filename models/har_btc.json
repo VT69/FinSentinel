@@ -1,0 +1,29 @@
+{
+  "asset": "BTC",
+  "intercept": -1.063051005891508,
+  "coef": {
+    "log_vol_5": 0.20162346552835966,
+    "log_vol_22": 0.3515907636247535,
+    "log_vol_60": 0.1979625399497312
+  },
+  "horizon": 5,
+  "windows": [
+    5,
+    22,
+    60
+  ],
+  "trained_from": "2015-03-03",
+  "trained_through": "2025-12-25",
+  "n_train": 3951,
+  "metrics": {
+    "test_rmse_vol": 0.01878103222476856,
+    "test_mae_vol": 0.012697029585598919,
+    "test_r2_log": 0.04738194723544191,
+    "test_qlike": 1.1496354068681478,
+    "train_rmse_vol": 0.019602947970405103,
+    "train_mae_vol": 0.012614002736757576,
+    "train_r2_log": 0.2823629204373729,
+    "train_qlike": 1.2669679297595506
+  },
+  "model_type": "HAR-log-linear"
+}

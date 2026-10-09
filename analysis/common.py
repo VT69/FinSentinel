@@ -8,6 +8,7 @@ Every function below cites the original code it mirrors.
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -19,6 +20,17 @@ OUT = ROOT / "analysis" / "outputs"
 OUT.mkdir(parents=True, exist_ok=True)
 
 SEED = 42
+AUDITED_COMMIT = "e1eb270"   # the commit audited in docs/; later commits fix or delete the files below
+
+
+def legacy_bytes(repo_path: str) -> bytes:
+    """Content of `repo_path` as it was at the audited commit (needs a git checkout with history)."""
+    try:
+        return subprocess.run(["git", "show", f"{AUDITED_COMMIT}:{repo_path}"], cwd=ROOT,
+                              check=True, capture_output=True).stdout
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise RuntimeError(f"Cannot read {repo_path}@{AUDITED_COMMIT}: run inside a full git clone "
+                           f"(git fetch --unshallow if needed). {exc}") from exc
 
 
 # ── Loaders ──────────────────────────────────────────────────────────────────

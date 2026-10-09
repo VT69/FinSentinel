@@ -25,11 +25,11 @@ matplotlib.use("Agg")
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import OUT, ROOT  # noqa: E402
+from common import OUT, legacy_bytes  # noqa: E402
 
 
 def dashboard_constants():
-    tree = ast.parse((ROOT / "dashboard" / "app.py").read_text())
+    tree = ast.parse(legacy_bytes("dashboard/app.py").decode())
     want = {"SHOCK_DECAY", "NIFTY_REGIME_STATS", "COND_EXP_BTC", "COND_EXP_NIFTY", "REAL_CORR_BTC", "REAL_CORR_NIFTY"}
     out = {}
     for node in tree.body:
@@ -38,12 +38,19 @@ def dashboard_constants():
     return out
 
 
+def _legacy_script08(tmp: str) -> Path:
+    """The ORIGINAL scripts/08 (it was rewritten after the audit) written to a temp file."""
+    p = Path(tmp) / "s08_original.py"
+    p.write_bytes(legacy_bytes("scripts/08_market_dynamics_analysis.py"))
+    return p
+
+
 def run_script08_synthetic():
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp:   # empty cwd → every data path in load_or_generate_data() misses
         os.chdir(tmp)
         try:
-            spec = importlib.util.spec_from_file_location("s08", ROOT / "scripts" / "08_market_dynamics_analysis.py")
+            spec = importlib.util.spec_from_file_location("s08", _legacy_script08(tmp))
             s08 = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(s08)          # module import runs np.random.seed(42) (line 39)
             btc, nifty, gmsi = s08.generate_synthetic_data()   # same single call as the __main__ "all missing" path
@@ -72,9 +79,9 @@ def run_script08_on_real_prices():
     """Same MFI / shock functions, fed the committed real prices (no GMSI exists → no regime stats)."""
     import pandas as pd
     from common import load_prices
-    spec = importlib.util.spec_from_file_location("s08r", ROOT / "scripts" / "08_market_dynamics_analysis.py")
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmp:
+        spec = importlib.util.spec_from_file_location("s08r", _legacy_script08(tmp))
         os.chdir(tmp)
         try:
             s08 = importlib.util.module_from_spec(spec); spec.loader.exec_module(s08)

@@ -29,8 +29,8 @@ import pandas as pd
 from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import (OUT, PIPELINE_FEATURES, PRICE_FEATURES, ROOT, SEED,  # noqa: E402
-                    load_prices, price_feature_frame)
+from common import (OUT, PIPELINE_FEATURES, PRICE_FEATURES, SEED,  # noqa: E402
+                    legacy_bytes, load_prices, price_feature_frame)
 
 from sklearn.dummy import DummyRegressor  # noqa: E402
 from sklearn.ensemble import RandomForestRegressor  # noqa: E402
@@ -59,11 +59,11 @@ def vol_metrics(y_log_true, y_log_pred):
 
 # ═════════════════════════════════════════════════════════════════════════════
 def section_a():
-    section("A. COMMITTED ARTIFACT models/rf_btc.pkl")
+    section("A. COMMITTED ARTIFACT models/rf_btc.pkl (as of the audited commit)")
     import joblib
     import sklearn
-    raw = (ROOT / "models" / "rf_btc.pkl").read_bytes()
-    m = joblib.load(ROOT / "models" / "rf_btc.pkl")
+    raw = legacy_bytes("models/rf_btc.pkl")      # deleted after the audit; read from the audited commit
+    m = joblib.load(io.BytesIO(raw))
     depths = sorted({e.get_depth() for e in m.estimators_})
     nodes = sorted({e.tree_.node_count for e in m.estimators_})
     roots = np.array([e.tree_.value[0, 0, 0] for e in m.estimators_])
