@@ -1,9 +1,8 @@
-import zipfile
-import csv
-import os
-import requests
-import zipfile
 import io
+import os
+import zipfile
+
+import requests
 import pandas as pd
 from datetime import datetime, timedelta
 
@@ -14,11 +13,8 @@ START_DATE = "2020-03-17"
 END_DATE   = "2025-12-31"   # change later (overnight run)
 BASE_URL   = "http://data.gdeltproject.org/gkg/"
 
-RAW_DIR    = "../data/raw/gdelt/gkg_raw"
-OUT_DIR    = "../data/raw/gdelt/gkg_filtered"
-
-os.makedirs(RAW_DIR, exist_ok=True)
-os.makedirs(OUT_DIR, exist_ok=True)
+_ROOT      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_DIR    = os.path.join(_ROOT, "data", "raw", "gdelt", "gkg_filtered")
 
 # ==============================
 # KEYWORDS
@@ -93,65 +89,72 @@ def is_relevant(text):
 # ==============================
 # MAIN LOOP
 # ==============================
-start = datetime.strptime(START_DATE, "%Y-%m-%d")
-end   = datetime.strptime(END_DATE, "%Y-%m-%d")
+def main(start_date=START_DATE, end_date=END_DATE):
+    os.makedirs(OUT_DIR, exist_ok=True)
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end   = datetime.strptime(end_date, "%Y-%m-%d")
 
-current = start
+    current = start
 
-while current <= end:
-    date_str = current.strftime("%Y%m%d")
-    url = f"{BASE_URL}{date_str}.gkg.csv.zip"
+    while current <= end:
+        date_str = current.strftime("%Y%m%d")
+        url = f"{BASE_URL}{date_str}.gkg.csv.zip"
 
-    print(f"\n📅 Processing {current.date()}")
+        print(f"\n📅 Processing {current.date()}")
 
-    try:
-        r = requests.get(url, timeout=60)
-        if r.status_code != 200:
-            print("  ⚠️ File not found")
-            current += timedelta(days=1)
-            continue
+        try:
+            r = requests.get(url, timeout=60)
+            if r.status_code != 200:
+                print("  ⚠️ File not found")
+                current += timedelta(days=1)
+                continue
 
-        z = zipfile.ZipFile(io.BytesIO(r.content))
-        csv_name = z.namelist()[0]
+            z = zipfile.ZipFile(io.BytesIO(r.content))
+            csv_name = z.namelist()[0]
 
-        df = pd.read_csv(
-            z.open(csv_name),
-            sep="\t",
-            header=None,
-            encoding="latin1",
-            low_memory=False
-        )
+            df = pd.read_csv(
+                z.open(csv_name),
+                sep="\t",
+                header=None,
+                encoding="latin1",
+                low_memory=False
+            )
 
-        # GKG column positions (stable)
-        df = df[[0, 1, 3, 4, 8, 9]]
-        df.columns = [
-            "date",
-            "source",
-            "themes",
-            "locations",
-            "persons",
-            "organizations"
-        ]
+            # GKG column positions (stable)
+            df = df[[0, 1, 3, 4, 8, 9]]
+            df.columns = [
+                "date",
+                "source",
+                "themes",
+                "locations",
+                "persons",
+                "organizations"
+            ]
 
-        # Filter
-        mask = (
-            df["themes"].apply(is_relevant) |
-            df["organizations"].apply(is_relevant) |
-            df["persons"].apply(is_relevant)
-        )
+            # Filter
+            mask = (
+                df["themes"].apply(is_relevant) |
+                df["organizations"].apply(is_relevant) |
+                df["persons"].apply(is_relevant)
+            )
 
-        filtered = df[mask]
+            filtered = df[mask]
 
-        if filtered.empty:
-            print("  ➜ No relevant news")
-        else:
-            out_path = f"{OUT_DIR}/gkg_{date_str}.csv"
-            filtered.to_csv(out_path, index=False)
-            print(f"  ✅ Saved {len(filtered)} rows")
+            if filtered.empty:
+                print("  ➜ No relevant news")
+            else:
+                out_path = f"{OUT_DIR}/gkg_{date_str}.csv"
+                filtered.to_csv(out_path, index=False)
+                print(f"  ✅ Saved {len(filtered)} rows")
 
-    except Exception as e:
-        print(f"  ❌ Error: {e}")
+        except Exception as e:
+            print(f"  ❌ Error: {e}")
 
-    current += timedelta(days=1)
+        current += timedelta(days=1)
 
-print("\n🎯 GKG PIPELINE COMPLETE")
+    print("\n🎯 GKG PIPELINE COMPLETE")
+
+
+if __name__ == "__main__":
+    import sys
+    main(*sys.argv[1:3])

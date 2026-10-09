@@ -5,16 +5,20 @@ from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.tsa.stattools import adfuller
 import seaborn as sns
 import os
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+PROCESSED = ROOT / "data" / "processed"
 
 def sanity_check():
     print("Loading datasets...")
-    gmsi = pd.read_csv('data/processed/gmsi_exogenous.csv')
+    gmsi = pd.read_csv(PROCESSED / 'gmsi_exogenous.csv')
     gmsi['date'] = pd.to_datetime(gmsi['date'])
     
-    btc = pd.read_csv('data/processed/btc_vsi_full.csv')
+    btc = pd.read_csv(PROCESSED / 'btc_vsi_full.csv')
     btc['date'] = pd.to_datetime(btc['date'])
     
-    nifty = pd.read_csv('data/processed/nifty_vsi_full.csv')
+    nifty = pd.read_csv(PROCESSED / 'nifty_vsi_full.csv')
     nifty['date'] = pd.to_datetime(nifty['date'])
     
     # Merge for correlation checking
@@ -44,7 +48,7 @@ def sanity_check():
         
     # Plotting
     print("\nGenerating plots...")
-    os.makedirs('reports/figures', exist_ok=True)
+    os.makedirs(ROOT / 'reports' / 'figures', exist_ok=True)
     
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
     
@@ -69,7 +73,7 @@ def sanity_check():
     axes[1, 1].set_title('GMSI vs BTC Volatility (Time Series)')
     
     plt.tight_layout()
-    plt.savefig('reports/figures/gmsi_sanity_checks.png')
+    plt.savefig(ROOT / 'reports' / 'figures' / 'gmsi_sanity_checks.png')
     print("Saved plots to reports/figures/gmsi_sanity_checks.png")
 
 if __name__ == '__main__':
