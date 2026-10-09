@@ -36,7 +36,8 @@ def render():
    on both assets — but it explains only a small share of the variance
    (out-of-sample R² {m['BTC']['summary']['HAR (served)']['test_r2_log']:.3f} BTC,
    {m['NIFTY']['summary']['HAR (served)']['test_r2_log']:.3f} NIFTY, log scale). Its biggest misses are
-   event weeks (e.g. Aug 2024 sell-off, Indian election week Jun 2024) that past volatility cannot see.
+   event weeks that past volatility cannot see: the March 2020 COVID crash, the August 2024 sell-off (BTC) and
+   the June 2024 Indian election-result week (NIFTY).
 2. **Shocks persist differently.** After a top-5% move, BTC's absolute returns stay
    ~{btc_s['ratio_to_baseline'].min():.1f}–{btc_s['ratio_to_baseline'].max():.1f}× normal for three weeks;
    NIFTY starts at {nif_s['ratio_to_baseline'].iloc[0]:.1f}× and decays to {nif_s['ratio_to_baseline'].iloc[-1]:.1f}×.
