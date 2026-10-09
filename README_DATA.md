@@ -85,7 +85,7 @@ data/raw/
 
 **Columns per CSV:** `open, high, low, close, volume, adj_close, log_return, vol_7d, vol_14d, vol_30d, vol_60d`
 
-Rolling volatility is annualised (×√252). `log_return = ln(close / close_prev)`.
+Rolling volatility is annualised with √365 for crypto (BTC-USD, ETH-USD) and √252 for everything else. `log_return = ln(close / close_prev)`.
 
 ---
 
@@ -215,7 +215,7 @@ On quota hit (HTTP 429 or API-level rate message), the pipeline saves completed 
 
 | Field | Value |
 |---|---|
-| Library | `nasdaqdatalink` |
+| Library | `nasdaqdatalink` (pip: `nasdaq-data-link`) |
 | API Key | `QUANDL_API_KEY` — free at [data.nasdaq.com](https://data.nasdaq.com/sign-up) |
 
 **Datasets attempted:**

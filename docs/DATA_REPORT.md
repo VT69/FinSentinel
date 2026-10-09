@@ -1,5 +1,7 @@
 # FinSentinel — Data Report
 
+> **Status after fixes.** This report profiles the data as committed at `e1eb270`. Since then, the two duplicated rows in `nifty_google_trends.csv` were removed (194 → 192 rows). Everything else in `data/raw` is unchanged.
+
 > Every statistic in this document was produced in this session by
 > `analysis/data_profile.py` (outputs in `analysis/outputs/`: `data_profile_stdout.txt`, `profile_summary.json`, CSVs and PNGs),
 > `analysis/model_eval.py` and `analysis/verify_dashboard_numbers.py`.
